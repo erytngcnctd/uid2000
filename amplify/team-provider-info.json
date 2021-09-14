@@ -1,0 +1,23 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-wuwei-dev-204259-authRole",
+            "UnauthRoleArn": "arn:aws:iam::274552862260:role/amplify-wuwei-dev-204259-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::274552862260:role/amplify-wuwei-dev-204259-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-wuwei-dev-204259-deployment",
+            "UnauthRoleName": "amplify-wuwei-dev-204259-unauthRole",
+            "StackName": "amplify-wuwei-dev-204259",
+            "StackId": "arn:aws:cloudformation:us-east-1:274552862260:stack/amplify-wuwei-dev-204259/872a7c30-02d9-11ec-9861-0ec6977a61f1",
+            "AmplifyAppId": "d3ne12o7gegro"
+        },
+        "categories": {
+            "hosting": {
+                "amplifyhosting": {
+                    "appId": "d3ne12o7gegro",
+                    "type": "manual"
+                }
+            }
+        }
+    }
+}
