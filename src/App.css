@@ -3,7 +3,130 @@ a {
     color : black;
 }
 
-a:hover {
+.nostyle {
+    text-decoration : none;
+}
+
+a.style {
     color : black;
     text-decoration: underline;
+}
+
+a.style:hover {
+    color : white;
+    background-color: black;
+    text-decoration: underline;
+}
+
+a.button {
+    height: 15px;
+    text-decoration: none;
+    border-style : solid;
+}
+
+a.button:hover {}
+
+img {
+    max-width: 50vw;
+    max-height: 75vh;
+}
+
+audio {
+    max-width: 50vw;
+}
+
+.row {
+    width : 100vw;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 0.5px;
+  }
+
+  .column {
+    flex: 23.5%;
+    max-width: 23.5%;
+    padding: 0 0.5px;
+  }
+
+  .column img {
+      margin-top: 8px;
+      width: 100%;
+    }
+
+.column video {
+    margin-top: 8px;
+    vertical-align: middle;
+    width: 100%;
+}
+
+input {
+    border-style: solid;
+    height: 15px;
+    font-family: monospace;
+}
+
+.center {
+    top : 47.5%;
+    position : absolute;
+}
+
+.line {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    height: 10px;
+    background-color: black;
+    animation: opacityOn 5s normal forwards;
+    animation-iteration-count: infinite
+ }
+
+ iframe {
+     width : 100vw;
+     height : 70vh;
+ }
+
+
+.react-pdf__Page__canvas {
+    margin: 0 auto;
+}
+
+ @keyframes opacityOn {
+    0% {
+        opacity: 1;
+    }
+    25% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 800px) {
+    .column { all : unset; }
+
+    .row { all : unset; }
+
+    img {
+      max-width : 100vw;
+    }
+    
+    .txt {
+        max-width: 100vw !important;
+    }
+
+    video {
+        max-width: 100vw !important;
+    }
+
+    .react-pdf__Page__canvas {
+        width: 100vw !important;
+        height: 100% !important;
+    }
 }

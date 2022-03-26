@@ -6,6 +6,12 @@ import { Mint } from './components/mint'
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { Header } from './components/header'
 import { Token } from './components/token'
+import { About } from './components/about'
+import { Assets } from './components/assets'
+import { Exchange } from './components/exchange'
+
+import { HashRouter } from 'react-router-dom/cjs/react-router-dom.min'
+import { Config } from './components/config'
 
 function App() {
 
@@ -15,13 +21,17 @@ function App() {
   return (
     <UngrundContextProvider>
       <Header />
-      <BrowserRouter>
+      <HashRouter>
         <Switch>
           <Route exact path='/' component={Feed} />
-          <Route exact path='/mint' component={Mint} />
-          <Route path='/token/:id' component={Token} />
+          <Route exact path='/publish' component={Mint} />
+          <Route path='/asset/:id' component={Token} />
+          <Route exact path='/about' component={About} />
+          <Route exact path='/exchange' component={Exchange} />
+          <Route exact path='/config' component={Config} />
+          <Route path='/:id' component={Assets} />
         </Switch>
-      </BrowserRouter>
+      </HashRouter>
     </UngrundContextProvider>
   )
 }

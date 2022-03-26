@@ -110,11 +110,42 @@
 			{
 				"indexed": true,
 				"internalType": "uint256",
-				"name": "_id",
+				"name": "_tokenId",
 				"type": "uint256"
 			}
 		],
 		"name": "URI",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "metadata",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "royalties",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "metadataLog",
 		"type": "event"
 	},
 	{
@@ -132,7 +163,7 @@
 			},
 			{
 				"internalType": "string",
-				"name": "_uri",
+				"name": "_tokenUri",
 				"type": "string"
 			}
 		],
@@ -388,33 +419,26 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_id",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
 				"type": "uint256"
 			}
 		],
-		"name": "royaltiesView",
+		"name": "royaltyInfo",
 		"outputs": [
 			{
-				"components": [
-					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "issuer",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "royalties",
-						"type": "uint256"
-					}
-				],
-				"internalType": "struct ERC1155Mintable.Royalties",
+				"internalType": "address",
 				"name": "",
-				"type": "tuple"
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -426,7 +450,7 @@
 		"inputs": [
 			{
 				"internalType": "bytes4",
-				"name": "_interfaceId",
+				"name": "interfaceId",
 				"type": "bytes4"
 			}
 		],
@@ -447,32 +471,11 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_id",
-				"type": "uint256"
-			}
-		],
-		"name": "uri",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
 		],
-		"name": "uris",
+		"name": "tokenUris",
 		"outputs": [
 			{
 				"internalType": "string",
