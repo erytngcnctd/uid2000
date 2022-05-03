@@ -94,8 +94,8 @@ Block Explorer URL: https://polygonscan.com/<br/>
             
             <a onClick={() => connectAvax()} href='#'>connect to AVAX</a><br /><br /> */}
 
-            Exchange of digital assets can be made making use of MATIC, DAI or ███.<br /><br />
-            To bridge assets from Ethereum Network to Polygon Network use <a class="style" href="https://wallet.polygon.technology/bridge">Polygon Bridge</a> <a class="style" href='https://www.youtube.com/watch?v=OOVzXvivgyM'>(see how to).</a><br />Gnosis network will also be integrated in the near future.<br />
+            Exchange of digital assets can be made making use of MATIC.<br /><br />
+            To bridge assets from Ethereum Network to Polygon Network use <a class="style" href="https://wallet.polygon.technology/bridge">Polygon Bridge</a> <a class="style" href='https://www.youtube.com/watch?v=OOVzXvivgyM'>(see how to).</a><br /><br /><b>This is an experimental decentralized application use at your own risk.</b><br />
             {/* To bridge assets from Ethereum Network to Gnosis Chain use <a class="style" href="https://bridge.xdaichain.com/">xDai Bridge</a> <a class="style" href='https://www.xdaichain.com/for-users/bridges/converting-xdai-via-bridge/moving-dai-to-xdai'>(see how to).</a><br /> */}<br />
             {/*             <div style={style}>
             </div> */}

@@ -185,7 +185,7 @@ export class Assets extends Component {
                             <div>
                                 <div>
                                     <a class="style" style={{cursor : 'pointer'}}>//creations //</a>
-                                    <a class="style" style={{cursor : 'pointer'}}>collection //</a>
+                                    <a class="style" style={{cursor : 'pointer'}} onClick={() => console.log('oi')}>collection //</a>
                                 </div>
                                 <div class="row">
                                 {

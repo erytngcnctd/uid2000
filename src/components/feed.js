@@ -72,7 +72,7 @@ export class Feed extends Component {
 
     render() {
         return (
-            <div>
+            <div><br/>
                 {
                     !this.state.loading ?
                         <div class='row'><br />

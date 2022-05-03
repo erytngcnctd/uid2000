@@ -82,7 +82,7 @@ export class Header extends Component {
     render() {
         return (
             <div>
-                <div style={{ borderBottom: 'solid', height: '50px' }}>
+                <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
                     <div>
                         <a href='/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a>
                         {
@@ -105,7 +105,7 @@ export class Header extends Component {
                         }
                     </div>
                 </div>
-                <div style={{ display: 'inline' }}>
+                <div style={{ display: 'inline', marginBottom: '50px' }}>
                     <span>
                         <a class='style' onClick={() => this.context.setSelected(undefined)} href='/'> {/* filters ? */}
                         //feed  //
@@ -158,6 +158,9 @@ export class Header extends Component {
                         <a href='collections'></a> */}
                     </span>
                 </div>
+{/*                 <div>
+                    <input type="text" placeholder="search..."></input>
+                </div> */}
             </div>
         )
     }

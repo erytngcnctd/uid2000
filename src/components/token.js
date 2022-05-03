@@ -44,12 +44,14 @@ export class Token extends Component {
               metadata
               mimeType
               image
+              attributes
               hash
               animation
               title
               description
               timestamp
               from
+              available
             }
             transfers(where : { tokenId: ${id} }, orderBy: timestamp, orderDirection: desc) {
                 id
@@ -75,7 +77,7 @@ export class Token extends Component {
         burn.map(e => e.amount = Number(e.amount))
         //console.log(tks.map(e => e._value = Number(e._value)))
         console.log(tks)
-        this.setState({ editions: _.sumBy(tks, 'value') - _.sumBy(burn, 'value') })
+        this.setState({ editions: _.sumBy(parseInt(tks), 'value') - _.sumBy(parseInt(burn), 'value') })
         console.log(this.state)
         return data.data
 
@@ -129,6 +131,7 @@ export class Token extends Component {
 
         let transfers = metadata.transfers
         transfers = transfers.filter(e => e.from != this.context.v1.toLowerCase() && e.to != this.context.v1.toLowerCase() && e.from != '0x0000000000000000000000000000000000000000')
+        console.log(transfers)
         //let transfers = (_.filter(metadata.tokenTransfers, { _from: "0x0000000000000000000000000000000000000000" }))
         //transfers = [...transfers, ...(_.filter(metadata.tokenTransfers, { _to: this.context.dummy }))]
         //transfers.map(e => e.timestamp = e._timestamp)
@@ -150,9 +153,10 @@ export class Token extends Component {
         let market = _.sumBy(op0, 'amount')
         this.setState({ market: market })
 
-        let history = _.orderBy([...(await this.listings(tokenId)), ...transfers], ['timestamp'], ['desc'])
+        let history = await this.listings(tokenId)
         history.forEach(i => op0.forEach(j => { if (i.swapId == j.swapId) i.seller = j.issuer }))
-        
+        history = _.orderBy([...history, ...transfers],['timestamp'], ['desc'])
+        console.log(history)
         Promise.all(aux).then(async values => {
             console.log('metadata', values)
             this.context.token = values
@@ -276,7 +280,7 @@ export class Token extends Component {
                                         </div> : undefined
                                 }
                                 <br />
-                                {this.state.market == 0 ? <span>X</span> : <span>{this.state.market}</span>}/{this.state.editions} ed.<br />
+                                {this.state.market == 0 ? <span>X</span> : <span>{this.state.market}</span>}/{this.state.token[0].available} ed.<br />
                                 <a class='style' href={`#/${this.state.token[0].from}`}>{this.state.token[0].from.slice(0, 7)}...{this.state.token[0].from.slice(36, 42)}</a><br /><br />
                             </div>
 
@@ -325,6 +329,7 @@ export class Token extends Component {
                                 this.state.option === undefined || this.state.option === 'info' ? <div><br />
                                     {this.state.token[0].title ? <span>{this.state.token[0].title}<br /></span> : undefined}
                                     {this.state.token[0].description ? <span>{this.state.token[0].description}<br /></span> : undefined}
+                                    {/* {this.state.token[0].attributes ? <span><br />{this.state.token[0].attributes.split(' ').map(e => <span><span class='tag'>{e}</span> </span>)}</span> : undefined } */}
                                 </div> : undefined
                             }
                             {
@@ -347,10 +352,8 @@ export class Token extends Component {
                             }
                             {
                                 this.state.option === 'history' ?
-                                    <table style={{ display: 'block' }}>
-                                        {
-                                            this.state.listings != 0 ?
-                                                <div><br />
+                                    <table style={{ display: 'block' }}><br />
+                                                <div>
                                                     {
                                                         this.state.history.map(e => {
                                                             if (e.op == 0) {
@@ -415,8 +418,6 @@ export class Token extends Component {
                                                         })
                                                     }
                                                 </div>
-                                                : undefined
-                                        }
                                         {
                                             this.state.token.length != 0 ?
                                                 <div>

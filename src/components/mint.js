@@ -6,6 +6,8 @@ import { NFTStorage, File } from 'nft.storage'
 import { create } from 'ipfs-http-client'
 import { Loading } from './load'
 
+const findHashtags = require('find-hashtags')
+
 var Contract = require('web3-eth-contract')
 const Web3 = require('web3')
 const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEY1NDdDNUIyMjMzMTc3MDZkZDdkODNEMjA4ODRkRDgxOTIxNTBiNEUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYyODE5NTc4NTc2MSwibmFtZSI6InRlc3QifQ.RED_BCrWtUgodnbLxdFV5lKxVTPruv1Cg-bcDL7jtrI'
@@ -20,6 +22,7 @@ export class Mint extends Component {
         description: undefined,
         amount: undefined,
         royalties: undefined,
+        hashtags: undefined,
         file: undefined,
         display: undefined,
         result: undefined,
@@ -28,11 +31,18 @@ export class Mint extends Component {
 
     componentWillMount = async () => { }
 
-    handleChange = e => this.setState({ [e.target.name]: e.target.value })
+    handleChange = e => {
+        if (e.target.name == 'hashtags') {
+            this.setState({ [e.target.name]: findHashtags(e.target.value) })
+        } else {
+            this.setState({ [e.target.name]: e.target.value })
+        }
+    }
 
     onFileUpload = e => {
         this.setState({ file: e.target.files[0] })
         console.log(e.target.files[0].type)
+        console.log(e.target.files[0])
         console.log(e.target.files[0].type !== undefined)
         if (e.target.files[0].type.split('/')[0] != 'image' && e.target.files[0].type.split('/')[0] != 'text' && e.target.files[0].type != 'application/pdf') this.setState({ video: true })
         console.log(this.state.video)
@@ -44,7 +54,7 @@ export class Mint extends Component {
 
         // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt
         // https://blog.secure-monkey.com/considerations-when-using-aes-gcm-for-encrypting-files/
-        
+
         console.log(await this.state.file.arrayBuffer())
         console.log(ls.get('pk'))
 
@@ -93,6 +103,7 @@ export class Mint extends Component {
 
     mint = async () => {
 
+        console.log(this.state)
         this.context.setLoading(true)
         this.context.setMsg('preparing asset')
 
@@ -128,6 +139,7 @@ export class Mint extends Component {
             }
         }
 
+        if (this.state.hashtags?.length > 0) obj.attributes = this.state.hashtags.map(e => { return { 'value' : e } })
         if (this.state.file.type != undefined) obj.mimeType = this.state.file.type
 
         let str = JSON.stringify(obj)
@@ -201,6 +213,7 @@ export class Mint extends Component {
                                 <div>
                                     <input type="text" placeholder="title" name="title" onChange={this.handleChange} /><br />
                                     <input type="text" placeholder="description" name="description" onChange={this.handleChange} /><br />
+                                    {/* <input type="text" placeholder="#hashtags" name="hashtags" onChange={this.handleChange} /><br /> */}
                                     <input type="text" placeholder="amount" name="amount" onChange={this.handleChange} /><br />
                                     <input type="text" placeholder="royalties" name="royalties" onChange={this.handleChange} /><br />
                                     <input type="file" name="file" onChange={this.onFileUpload} />
