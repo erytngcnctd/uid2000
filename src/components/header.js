@@ -84,7 +84,7 @@ export class Header extends Component {
             <div>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
                     <div>
-                        <a href='/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a>
+                        <a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a>
                         {
                             !this.context.sync || !this.context.account ?
                                 <span style={{ float: 'right', marginTop: '15px' }}>
@@ -107,7 +107,7 @@ export class Header extends Component {
                 </div>
                 <div style={{ display: 'inline', marginBottom: '50px' }}>
                     <span>
-                        <a class='style' onClick={() => this.context.setSelected(undefined)} href='/'> {/* filters ? */}
+                        <a class='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
                         //feed  //
                         </a>
                         <a class='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
