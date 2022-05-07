@@ -191,8 +191,6 @@ export class Assets extends Component {
                                 {
                                     this.state.arr.map(e => {
                                         {
-                                
-                                                
                                                 return (
                                                     <div class="column">
                                                         {
@@ -234,8 +232,8 @@ export class Assets extends Component {
                                                                     </audio>
                                                                 </a>
                                                             </div> : undefined
-                                                        }
-                                                                                                                        {
+                                                        }                                                                
+                                                        {
                                                                     e.mimeType == 'application/pdf' ?
                                                                         <div>
                                                                             <a href={`#/asset/${toHex(e.id)}`}>
@@ -250,7 +248,6 @@ export class Assets extends Component {
                                                                 }
                                                     </div>
                                                 )
-                                            
                                         }
                                     })
                                 }
@@ -262,6 +259,5 @@ export class Assets extends Component {
                 </div>
             </div>
         )
-
     }
 }
