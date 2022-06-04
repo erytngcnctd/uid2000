@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
 import { Card } from 'react-bootstrap'
-
+import { Search } from './search'
 const Web3 = require('web3')
 const ls = require('local-storage')
 var web3;
@@ -84,8 +84,11 @@ export class Header extends Component {
             <div>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
                     <div>
-                        <a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a>
-                        {
+                        <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
+{/*                         <span style={{ float: 'right', marginTop: '5px' }}>
+                            <a class='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
+                        </span> */}
+                         {
                             !this.context.sync || !this.context.account ?
                                 <span style={{ float: 'right', marginTop: '15px' }}>
                                     <a class='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={this.sync}>sync</a>
@@ -98,9 +101,6 @@ export class Header extends Component {
                                     <span style={{ float: 'right', marginTop: '15px' }}>
                                         <a class='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => this.unsync()}>unsync</a>
                                     </span>
-                                    {/*                                     <span onClick={() => this.unsync}>
-                                        unsync
-                                    </span> */}
                                 </div>
                         }
                     </div>
@@ -108,7 +108,7 @@ export class Header extends Component {
                 <div style={{ display: 'inline', marginBottom: '50px' }}>
                     <span>
                         <a class='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
-                        //feed  //
+                        //feeds  //
                         </a>
                         <a class='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
                             publish  //
@@ -126,19 +126,22 @@ export class Header extends Component {
                         }
                         <a class='style' href='#/about'>
                             about //
-                        </a>
+                        </a><br/><br/>
                         <span style={{ float: 'right' }}>
-                            network:
+{/*                             network:
                             <select style={{ border: 'none', fontFamily: 'monospace' }}>
                                 <option value='0'>polygon</option>
-                                {/*                             <option value='1'>fantom</option>
+                            </select> */}
+                            {/*
+                             <option value='1'>fantom</option>
                             <option value='2'>avax</option>
                             <option value='3'>aurora</option>
                             <option value='4'>near</option>
                             <option value='5'>ethereum</option>
                             <option value='6'>bnb</option>
-                                <option value='7'>xDAI</option>*/}
-                            </select>
+                                <option value='7'>xDAI</option>
+                                */}
+                                
                         </span>
 {/*                         {
                             this.context.selected == 'mint' ?

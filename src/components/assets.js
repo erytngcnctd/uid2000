@@ -15,7 +15,6 @@ function toHex(d) {
 const assets = async (address) => {
     console.log(assets)
     const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
-
     const tokensQuery = `query
     {
         assets(where: { from : "${address}", available_not : "0", mimeType_not : "" }, orderBy: timestamp,  orderDirection: desc) {
@@ -48,6 +47,7 @@ const collection = async (address) => {
                   id
                   value
                   from
+                  tokenId
                   to
         }
     }`
@@ -57,6 +57,7 @@ const collection = async (address) => {
         transfers(where: { to : "${address}" }) {
                   id
                   value
+                  tokenId
                   from
                   to
         }
@@ -67,51 +68,60 @@ const collection = async (address) => {
     });
 
 
-    let _in = (await client.query(from).toPromise()).data.transfers
-    let _out = (await client.query(to).toPromise()).data.transfers
+    let _out = (await client.query(from).toPromise()).data.transfers
+    let _in = (await client.query(to).toPromise()).data.transfers
 
     // remove creations
 
+    let x0 = _in.filter(e => e.from == "0x0000000000000000000000000000000000000000")
+
     _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000")
     _in.map(e => e.value = Number(e.value))
-    let id_in = _.uniqBy(_in.map(e => Number(e.id)), '_id')
+    console.log(_in)
+    //this.setState({ arr : _in })
+    //let id_in = _.uniqBy(_in.map(e => Number(e.tokenId)), 'tokenId')
     _out.map(e => e.value = Number(e.value))
-    let id_out = _.uniqBy(_out.map(e => Number(e.id)), '_id')
+    //let id_out = _.uniqBy(_out.map(e => Number(e.tokenId)), 'tokenId')
+    console.log(_out)
+    // filter market/burn/secondary
 
-    // filter market/burn
+    //let balance_in = _in.map(i => { return ({ id: i.tokenId, count: _.sumBy(_in.filter(j => i.tokenId == j.tokenId), 'value') }) })
+    //let balance_out = _out.map(i => { return ({ id: i.tokenId, count: _.sumBy(_out.filter(j => i.tokenId == j.tokenId), 'value') }) })
+    //console.log(balance_in, balance_out)
 
-    let balance_in = id_in.map(i => { return ({ id: i, count: _.sumBy(_in.filter(j => i == j.id), 'value') }) })
-    let balance_out = id_out.map(i => { return ({ id: i, count: _.sumBy(_out.filter(j => i == j.id), 'value') }) })
-    console.log(balance_in, balance_out)
+    // unique by
+    //balance_in = _.uniqBy(balance_in, 'id')
+    //balance_out = _.uniqBy(balance_out, 'id')
 
-    let collection = balance_in.map(i => balance_out.map(j => {
-        if (i.id == j.id) return { id: j.id, amount: j.count - i.count }
-    }))
-    console.log(collection[0])
+    //let collection = balance_in.map(i => balance_out.map(j => {
+    //    if (i.id === j.id) { if (j.count - i.count != 0) console.log(j.id); return { id: j.id, amount: j.count - i.count }; }
+    //}))
+    //console.log(collection)
     //_out = _out.filter(e => e._to != '0x50a173157dc0627e0e9866e3804036764808ce8b')
     //_in.map(i => i.map(j => { if (i._id == j._id) i}))
 
     //_out.map(i => { _in.forEach(j => { if (i._id == j._id) i._value = i._value - j._value }) })
-    let data = [..._in, ..._out]
-    console.log(_in, _out)
+    //let data = [..._in, ..._out]
+    //console.log(_in, _out)
     //data = data.filter(e => e._from != "0x0000000000000000000000000000000000000000")
-    console.log(data)
+    //console.log(data)
 
+
+    let id_in = _in.map(e => e.tokenId)
     // in - out + on sale
-
-
+    console.log(JSON.stringify(id_in))
     const metadata = `query
     {
-        assets ( where : { id_in : ${[1]}, mimeType_not : "" }) {
+        assets ( where : { id_in : ${JSON.stringify(id_in)}, mimeType_not : "" }, orderBy: timestamp,  orderDirection: desc) {
           metadata
           id
+          animation
         mimeType
           image
         }
     }`
 
-    return data
-
+    return (await client.query(metadata).toPromise()).data.assets
 
 }
 
@@ -134,7 +144,6 @@ const getID = async (id) => {
 
 
     let res = (await client.query(transfers).toPromise()).data
-    console.log(res.ungrundIDs)
     return res.ungrundIDs[0]
 }
 
@@ -154,7 +163,7 @@ export class Assets extends Component {
         var aux = await assets(window.location.hash.split('/')[1])
         var id = await getID(window.location.hash.split('/')[1])
         this.setState({ id : id?.ungrundId ? id.ungrundId : undefined , description : id?.description ? id.description : undefined })
-        //console.log(aux)
+
         aux = await aux.map(async e => {
             if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
@@ -165,12 +174,18 @@ export class Assets extends Component {
             this.setState({ arr: values, loading: false })
         })
 
-        //collection(address)
     }
-    /*     useEffect(() => {
-            setFeed(assets(account))
-            console.log(feed)
-        }, []) */
+
+    setAssets = async (id) => {
+        this.setState({ loading : true })
+        this.setState({ arr : await assets(id), loading : false })
+    }
+
+    setCollection = async (id) => {
+        this.setState({ loading : true })
+        this.setState({ arr : await collection(id), loading : false })
+    }   
+
     render() {
         return (
             <div>
@@ -184,8 +199,8 @@ export class Assets extends Component {
                         !this.state.loading ?
                             <div>
                                 <div>
-                                    <a class="style" style={{cursor : 'pointer'}}>//creations //</a>
-                                    <a class="style" style={{cursor : 'pointer'}} onClick={() => console.log('oi')}>collection //</a>
+                                    <a class="style" style={{cursor : 'pointer'}} onClick={() => this.setAssets(window.location.hash.split('/')[1])}>//creations //</a>
+                                    <a class="style" style={{cursor : 'pointer'}} onClick={() => this.setCollection(window.location.hash.split('/')[1])}>collection //</a>
                                 </div>
                                 <div class="row">
                                 {
