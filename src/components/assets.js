@@ -37,7 +37,7 @@ const assets = async (address) => {
 
 }
 
-const collection = async (address) => {
+const collection = async (address, creations) => {
 
     const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
 
@@ -73,9 +73,10 @@ const collection = async (address) => {
 
     // remove creations
 
-    let x0 = _in.filter(e => e.from == "0x0000000000000000000000000000000000000000")
+    //let x0 = _in.filter(e => e.from == "0x0000000000000000000000000000000000000000")
 
-    _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000")
+    _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000" && !creations.map(e => e.id).includes(e.tokenId))
+
     _in.map(e => e.value = Number(e.value))
     console.log(_in)
     //this.setState({ arr : _in })
@@ -153,6 +154,8 @@ export class Assets extends Component {
 
     state = {
         loading: true,
+        creations: [],
+        collection: [],
         arr: [],
         id: undefined,
         description: undefined
@@ -171,19 +174,41 @@ export class Assets extends Component {
 
         Promise.all(aux).then(values => {
             console.log(values)
-            this.setState({ arr: values, loading: false })
+            this.setState({ arr: values, creations: values, loading: false })
         })
 
     }
 
     setAssets = async (id) => {
         this.setState({ loading : true })
-        this.setState({ arr : await assets(id), loading : false })
+
+        let aux = await assets(id)
+
+        aux = await aux.map(async e => {
+            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            return e
+        })
+
+        Promise.all(aux).then(values => {
+            this.setState({ arr: values, loading: false })
+        })
+
     }
 
     setCollection = async (id) => {
         this.setState({ loading : true })
-        this.setState({ arr : await collection(id), loading : false })
+
+        let aux = await collection(id, this.state.creations)
+        
+        aux = await aux.map(async e => {
+            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            return e
+        })
+
+        Promise.all(aux).then(values => {
+            this.setState({ arr: values, loading: false })
+        })
+
     }   
 
     render() {
