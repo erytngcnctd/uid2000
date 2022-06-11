@@ -213,7 +213,7 @@ export class Assets extends Component {
 
     render() {
         return (
-            <div>
+            <div><br />
                 { this.state.id ?
                 <span><a class="style" href={`https://polygonscan.com/address/${window.location.hash.split('/')[1]}`}>{this.state.id}</a><span> {this.state.description}</span></span>
                 :

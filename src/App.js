@@ -33,6 +33,7 @@ function App() {
           <Route exact path='/exchange' component={Exchange} />
           <Route exact path='/config' component={Config} />
           <Route exact path='/:id' component={Assets} />
+          <Route exact path='/search/:id' component={Search} />
         </Switch>
       </HashRouter>
     </UngrundContextProvider>

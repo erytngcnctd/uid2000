@@ -2,21 +2,33 @@ import React, { Component, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
 import { Card } from 'react-bootstrap'
 import { Search } from './search'
+import { Router, Redirect } from 'react-router'
+
 const Web3 = require('web3')
 const ls = require('local-storage')
+
 var web3;
 
 export class Header extends Component {
 
-    state = {
-        account: undefined,
-        synced: false,
-        selected: undefined
+    constructor(props) {
+        super(props);
+        this.state = {
+            account: undefined,
+            synced: false,
+            selected: undefined,
+            redirect: false,
+            path: undefined
+        }
     }
 
     static contextType = UngrundContext
 
     componentWillMount = async () => {
+
+        //console.log(window.location.hash.split('/')[1])
+        //this.setState({ path : window.location.hash.split('/')[1] })
+
         this.context.setAccount(ls.get('account'), ls.get('sync'))
 
         window.crypto.subtle.generateKey(
@@ -30,7 +42,7 @@ export class Header extends Component {
             ["encrypt", "decrypt"]
         ).then((keyPair) => {
             window.crypto.subtle.exportKey('jwk', keyPair.publicKey).then(res => {
-                if (!ls.get('pk')) ls.set('pk', res) 
+                if (!ls.get('pk')) ls.set('pk', res)
             })
             window.crypto.subtle.exportKey('jwk', keyPair.privateKey).then(res => {
                 if (!ls.get('sk')) ls.set('sk', res)
@@ -79,16 +91,25 @@ export class Header extends Component {
         } catch (err) { }
     }
 
+    handleKey = e => {
+        if (e.key == 'Enter') {
+            window.location.hash = `#/search/${this.state.search}`
+            window.location.reload()
+        }
+    }
+
+    handleChange = e => this.setState({ [e.target.name]: e.target.value })
+
     render() {
         return (
             <div>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
                     <div>
                         <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
-{/*                         <span style={{ float: 'right', marginTop: '5px' }}>
+                        {/*                         <span style={{ float: 'right', marginTop: '5px' }}>
                             <a class='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
                         </span> */}
-                         {
+                        {
                             !this.context.sync || !this.context.account ?
                                 <span style={{ float: 'right', marginTop: '15px' }}>
                                     <a class='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={this.sync}>sync</a>
@@ -126,9 +147,9 @@ export class Header extends Component {
                         }
                         <a class='style' href='#/about'>
                             about //
-                        </a><br/><br/>
+                        </a><br /><br />
                         <span style={{ float: 'right' }}>
-{/*                             network:
+                            {/*                             network:
                             <select style={{ border: 'none', fontFamily: 'monospace' }}>
                                 <option value='0'>polygon</option>
                             </select> */}
@@ -141,9 +162,9 @@ export class Header extends Component {
                             <option value='6'>bnb</option>
                                 <option value='7'>xDAI</option>
                                 */}
-                                
+
                         </span>
-{/*                         {
+                        {/*                         {
                             this.context.selected == 'mint' ?
                                 <div>
                                     <a class='style' style={{ cursor: 'pointer' }} onClick={() => this.context.setOpen(true)}>
@@ -154,16 +175,21 @@ export class Header extends Component {
                                     </a>
                                 </div> : undefined
                         } */}
-                        {/*                         <a href='#' onClick={() => this.addToken()}>
+                        {/*<a href='#' onClick={() => this.addToken()} >
                             add token //
                         </a>
                         <a href='#'>無為</a>
                         <a href='collections'></a> */}
                     </span>
                 </div>
-{/*                 <div>
-                    <input type="text" placeholder="search..."></input>
-                </div> */}
+                {
+                    this.state.path != 'config' ?
+                        <div>
+                            <input type="text" name="search" placeholder="search ⏎" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
+                        </div>
+                        :
+                        undefined
+                }
             </div>
         )
     }
