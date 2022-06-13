@@ -24,10 +24,12 @@ export class Header extends Component {
 
     static contextType = UngrundContext
 
+    //componentDidUpdate = async () => this.setState({ path : window.location.hash.split('/')[1] })
+
     componentWillMount = async () => {
 
         //console.log(window.location.hash.split('/')[1])
-        //this.setState({ path : window.location.hash.split('/')[1] })
+        this.context.setSelected(window.location.hash.split('/')[1])
 
         this.context.setAccount(ls.get('account'), ls.get('sync'))
 
@@ -136,16 +138,16 @@ export class Header extends Component {
                         </a>
                         {this.context.account ?
                             <span>
-                                <a class='style' href={`#/${this.context.account}`}>
+                                <a class='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
                                     assets //
                                 </a>
-                                <a class='style' href='#/config'>
+                                <a class='style' onClick={() => this.context.setSelected('config')} href='#/config'>
                                     config //
                                 </a>
                             </span>
                             : undefined
                         }
-                        <a class='style' href='#/about'>
+                        <a class='style' onClick={() => this.context.setSelected('about')} href='#/about'>
                             about //
                         </a><br /><br />
                         <span style={{ float: 'right' }}>
@@ -183,7 +185,7 @@ export class Header extends Component {
                     </span>
                 </div>
                 {
-                    this.state.path != 'config' ?
+                    this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' ?
                         <div>
                             <input type="text" name="search" placeholder="search ⏎" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
                         </div>
