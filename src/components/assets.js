@@ -33,7 +33,7 @@ const assets = async (address) => {
     });
 
     const data = await client.query(tokensQuery).toPromise();
-    return data.data.assets
+    return data.data?.assets
 
 }
 
@@ -117,7 +117,7 @@ const collection = async (address, creations) => {
           metadata
           id
           animation
-        mimeType
+          mimeType
           image
         }
     }`
@@ -148,6 +148,27 @@ const getID = async (id) => {
     return res.ungrundIDs[0]
 }
 
+const ungrundID = async (uid) => {
+    const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
+    const transfers = `query
+    {
+        ungrundIDs (where: { ungrundId : "${uid}" }) {
+                  id
+                  metadata
+                  description
+                  ungrundId
+        }
+    }`
+
+    const client = createClient({
+        url: APIURL
+    });
+
+
+    let res = (await client.query(transfers).toPromise()).data
+    return res.ungrundIDs[0]
+}
+
 export class Assets extends Component {
 
     static contextType = UngrundContext
@@ -157,15 +178,24 @@ export class Assets extends Component {
         creations: [],
         collection: [],
         arr: [],
-        id: undefined,
+        uid: undefined, // ungrund id
+        id: undefined, // wallet
         description: undefined
     }
 
     componentWillMount = async () => {
+        let aux
+        let uid = await ungrundID(window.location.hash.split('/')[1])
 
-        var aux = await assets(window.location.hash.split('/')[1])
-        var id = await getID(window.location.hash.split('/')[1])
-        this.setState({ id : id?.ungrundId ? id.ungrundId : undefined , description : id?.description ? id.description : undefined })
+        uid?.id == undefined ? aux = await assets(window.location.hash.split('/')[1]) : aux = await assets(uid.id)
+        if (uid?.id == undefined) uid = await getID(window.location.hash.split('/')[1])
+
+        this.setState({
+            uid: uid?.ungrundId ? uid.ungrundId : undefined,
+            description: uid?.description ? uid.description : undefined,
+            id: uid?.id ? uid.id : window.location.hash.split('/')[1],
+            loading: false
+        })
 
         aux = await aux.map(async e => {
             if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
@@ -180,7 +210,7 @@ export class Assets extends Component {
     }
 
     setAssets = async (id) => {
-        this.setState({ loading : true })
+        this.setState({ loading: true })
 
         let aux = await assets(id)
 
@@ -196,10 +226,10 @@ export class Assets extends Component {
     }
 
     setCollection = async (id) => {
-        this.setState({ loading : true })
+        this.setState({ loading: true })
 
         let aux = await collection(id, this.state.creations)
-        
+
         aux = await aux.map(async e => {
             if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
@@ -209,28 +239,29 @@ export class Assets extends Component {
             this.setState({ arr: values, loading: false })
         })
 
-    }   
+    }
 
     render() {
         return (
             <div><br />
-                { this.state.id ?
-                <span><a class="style" href={`https://polygonscan.com/address/${window.location.hash.split('/')[1]}`}>{this.state.id}</a><span> {this.state.description}</span></span>
-                :
-                <a class="style" href={`https://polygonscan.com/address/${window.location.hash.split('/')[1]}`}>{window.location.hash.split('/')[1].slice(0, 7)}...{window.location.hash.split('/')[1].slice(36, 42)}</a>
-                }
                 <div>
                     {
                         !this.state.loading ?
                             <div>
+                                {
+                                    this.state.uid ?
+                                        <span><a class="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.uid}</a><span> {this.state.description}</span></span>
+                                        :
+                                        <a class="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.id.slice(0, 7)}...{this.state.id.slice(36, 42)}</a>
+                                }
                                 <div>
-                                    <a class="style" style={{cursor : 'pointer'}} onClick={() => this.setAssets(window.location.hash.split('/')[1])}>//creations //</a>
-                                    <a class="style" style={{cursor : 'pointer'}} onClick={() => this.setCollection(window.location.hash.split('/')[1])}>collection //</a>
+                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => this.setAssets(this.state.id)}>//creations //</a>
+                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => this.setCollection(this.state.id)}>collection //</a>
                                 </div>
                                 <div class="row">
-                                {
-                                    this.state.arr.map(e => {
-                                        {
+                                    {
+                                        this.state.arr.map(e => {
+                                            {
                                                 return (
                                                     <div class="column">
                                                         {
@@ -254,43 +285,43 @@ export class Assets extends Component {
                                                         }
                                                         {
                                                             e.mimeType?.split('/')[0] == 'video' ?
-                                                            <div>
-                                                                <a href={`#/asset/${toHex(e.id)}`}>
-                                                                    <video autoPlay={"autoplay"} loop muted style={{ maxWidth : '50vw' }}>
-                                                                        <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`}></source>
-                                                                    </video>
-                                                                </a>
-                                                            </div> : undefined
+                                                                <div>
+                                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                                        <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
+                                                                            <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`}></source>
+                                                                        </video>
+                                                                    </a>
+                                                                </div> : undefined
                                                         }
                                                         {
                                                             e.mimeType?.split('/')[0] == 'audio' ?
-                                                            <div>
-                                                                <a href={`#/asset/${toHex(e.id)}`}>
-                                                                    <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} />
-                                                                    <audio controls>
-                                                                        <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`}/>
-                                                                    </audio>
-                                                                </a>
-                                                            </div> : undefined
-                                                        }                                                                
+                                                                <div>
+                                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                                        <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} />
+                                                                        <audio controls>
+                                                                            <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
+                                                                        </audio>
+                                                                    </a>
+                                                                </div> : undefined
+                                                        }
                                                         {
-                                                                    e.mimeType == 'application/pdf' ?
-                                                                        <div>
-                                                                            <a href={`#/asset/${toHex(e.id)}`}>
-                                                                                <Document
-                                                                                    file={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`}
-                                                                                >
-                                                                                    <Page pageNumber={1} />
-                                                                                </Document>
-                                                                            </a>
-                                                                        </div>
-                                                                        : undefined
-                                                                }
+                                                            e.mimeType == 'application/pdf' ?
+                                                                <div>
+                                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                                        <Document
+                                                                            file={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`}
+                                                                        >
+                                                                            <Page pageNumber={1} />
+                                                                        </Document>
+                                                                    </a>
+                                                                </div>
+                                                                : undefined
+                                                        }
                                                     </div>
                                                 )
-                                        }
-                                    })
-                                }
+                                            }
+                                        })
+                                    }
                                 </div>
                             </div>
                             :

@@ -27,7 +27,7 @@ export const Search = () => {
         let endpoint = `https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund`
 
         let description = `{
-            assets (where : { description_contains_nocase : "${window.location.hash.split('/')[2]}" }){
+            assets (orderBy: timestamp,  orderDirection: desc, where : { description_contains_nocase : "${window.location.hash.split('/')[2]}", available_not : "0", mimeType_not : "" }){
               id
               metadata
               image
@@ -37,7 +37,7 @@ export const Search = () => {
           }`
 
         let title = `{
-            assets (where : { title_contains_nocase : "${window.location.hash.split('/')[2]}" }){
+            assets (orderBy: timestamp,  orderDirection: desc, where : { title_contains_nocase : "${window.location.hash.split('/')[2]}", available_not : "0", mimeType_not : "" }){
               id
               metadata
               image
@@ -63,8 +63,9 @@ export const Search = () => {
         let title_data = await client.query(title).toPromise()
         let subjkt_data = await client.query(subjkt).toPromise()
 
+        console.log(_.uniqBy([...description_data.data.assets, ...title_data.data.assets], 'id'))
         setAssets(_.uniqBy([...description_data.data.assets, ...title_data.data.assets], 'id'))
-/*         let aux = _.uniqBy([...description_data.data.assets, ...title_data.data.assets], 'id').map(async e => {
+        let aux = _.uniqBy([...description_data.data.assets, ...title_data.data.assets], 'id').map(async e => {
             if (e.mimeType?.split('/')[0] == 'text') {
                 e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
                 return e
@@ -72,7 +73,7 @@ export const Search = () => {
                 return e
             }
         })
-        setAssets(aux) */
+        setAssets(aux)
         console.log(assets)
         setSubjkts(subjkt_data.data.ungrundIDs)
 
