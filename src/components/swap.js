@@ -47,7 +47,6 @@ export const Swap = ({ id }) => {
                 <div>
                     <input type="text" placeholder="amount" name="amount" onChange={(e) => setAmount(e.target.value)} /><br />
                     <input type="text" placeholder="value" name="value" onChange={(e) => setValue(e.target.value)} /><br />
-
                     <a class="button style" onClick={transaction} style={{ cursor: 'pointer' }}>swap</a>
                 </div>
             }

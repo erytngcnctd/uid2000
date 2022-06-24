@@ -135,7 +135,7 @@ export class Feed extends Component {
                                                                             <a href={`#/asset/${toHex(e.id)}`}>
                                                                                 <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} /><br />
 
-                                                                                <audio controls>
+                                                                                <audio controls style={{ width : '100%' }}>
                                                                                     <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
                                                                                 </audio>
                                                                             </a>

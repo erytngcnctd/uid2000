@@ -128,10 +128,10 @@ const collection = async (address, creations) => {
 
 const getID = async (id) => {
     const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
-    console.log(id)
+    console.log(decodeURI(id))
     const transfers = `query
     {
-        ungrundIDs (where: { id : "${id}" }) {
+        ungrundIDs (where: { id : "${encodeURI(id)}" }) {
                   id
                   metadata
                   description
@@ -186,10 +186,10 @@ export class Assets extends Component {
     componentWillMount = async () => {
         let aux
         let uid = await ungrundID(window.location.hash.split('/')[1])
-
+        console.log(uid)
         uid?.id == undefined ? aux = await assets(window.location.hash.split('/')[1]) : aux = await assets(uid.id)
         if (uid?.id == undefined) uid = await getID(window.location.hash.split('/')[1])
-
+        //window.location.hash = uid.ungrundId
         this.setState({
             uid: uid?.ungrundId ? uid.ungrundId : undefined,
             description: uid?.description ? uid.description : undefined,
@@ -298,7 +298,7 @@ export class Assets extends Component {
                                                                 <div>
                                                                     <a href={`#/asset/${toHex(e.id)}`}>
                                                                         <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} />
-                                                                        <audio controls>
+                                                                        <audio controls style={{ width : '100%' }}>
                                                                             <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
                                                                         </audio>
                                                                     </a>

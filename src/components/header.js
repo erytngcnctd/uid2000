@@ -104,7 +104,7 @@ export class Header extends Component {
 
     render() {
         return (
-            <div>
+            <div style={{ position : 'sticky', top : 0, left : 0, width : '100%', zIndex : 1, background : 'white' }}>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
                     <div>
                         <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
@@ -185,9 +185,9 @@ export class Header extends Component {
                     </span>
                 </div>
                 {
-                    this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' ?
+                    this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' && this.context.selected != 'exchange'?
                         <div>
-                            <input type="text" name="search" placeholder="search ⏎" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
+                            <input type="text" name="search" placeholder="search ↵" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
                         </div>
                         :
                         undefined

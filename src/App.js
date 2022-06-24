@@ -13,6 +13,7 @@ import { Search } from './components/search'
 import { Tags } from './components/tags'
 import { HashRouter } from 'react-router-dom/cjs/react-router-dom.min'
 import { Config } from './components/config'
+import { Swap } from './components/swap'
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
           <Route exact path='/config' component={Config} />
           <Route exact path='/:id' component={Assets} />
           <Route exact path='/search/:id' component={Search} />
+          <Route exact path='/exchange' component={Swap} />
         </Switch>
       </HashRouter>
     </UngrundContextProvider>
