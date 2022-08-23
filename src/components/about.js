@@ -62,16 +62,16 @@ export const About = () => {
 
     return (
         <div>
-            <br /><br />
+            <br />
             This is an experiment led by hicetnunc2000lab intending to make digital assets accessible accross the web3 space.<br />
             To connect with the dApp you need a <a class="style" href="https://metamask.io/">metamask wallet</a> connected to a custom RPC from Polygon Network:
             
             <pre>
             Network Name: Polygon<br/>
-New RPC URL: https://polygon-rpc.com<br/>
-ChainID: 137<br/>
-Symbol: MATIC<br/>
-Block Explorer URL: https://polygonscan.com/<br/>
+            New RPC URL: https://polygon-rpc.com<br/>
+            ChainID: 137<br/>
+            Symbol: MATIC<br/>
+            Block Explorer URL: https://polygonscan.com/<br/>
             </pre>
             <a class="style" style={{ cursor : 'pointer' }} onClick={() => connectPoly()}>connect to Polygon</a><br /><br />
 

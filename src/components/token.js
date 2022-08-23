@@ -314,15 +314,15 @@ export class Token extends Component {
 
                             {
                                 <div style={{ display: 'inline' }}>
-                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'info' })}>info //</a></span>
-                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].tokenId) }} href='javascript:void(0);'>order book //</a></span>
-                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'history' })} href='javascript:void(0);'>history //</a></span>
+                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'info' })}>info</a>&nbsp;&nbsp;</span>
+                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].tokenId) }} href='javascript:void(0);'>order book</a>&nbsp;&nbsp;</span>
+                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'history' })} href='javascript:void(0);'>history</a>&nbsp;&nbsp;</span>
                                     {
                                         // holder ?
                                     }
-                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'swap' })} href='javascript:void(0);'>swap //</a></span>
-                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'burn' })} href='javascript:void(0);'>burn // </a></span>
-                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'transfer' })} href='javascript:void(0);'>transfer // </a></span>
+                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'swap' })} href='javascript:void(0);'>swap</a>&nbsp;&nbsp;</span>
+                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'burn' })} href='javascript:void(0);'>burn</a>&nbsp;&nbsp;</span>
+                                    <span><a class='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'transfer' })} href='javascript:void(0);'>transfer</a>&nbsp;&nbsp;</span>
                                 </div>
                             }
                             {
@@ -437,7 +437,7 @@ export class Token extends Component {
                             {this.state.option == 'burn' ? <Burn id={this.state.token[0].id} /> : undefined}
                             {this.state.option == 'transfer' ? <Transfer id={this.state.token[0].id} /> : undefined}
                             <br />
-                            <a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].metadata.split('//')[1]}`}>metadata //</a><a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].animation ? this.state.token[0].animation.split('//')[1] : this.state.token[0].image.split('//')[1]}`}>view on ipfs</a>
+                            <a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].metadata.split('//')[1]}`}>metadata</a>&nbsp;&nbsp;<a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].animation ? this.state.token[0].animation.split('//')[1] : this.state.token[0].image.split('//')[1]}`}>view on ipfs</a>
                         </div>
                         :
                         undefined

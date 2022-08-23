@@ -104,7 +104,7 @@ export class Header extends Component {
 
     render() {
         return (
-            <div style={{ position : 'sticky', top : 0, left : 0, width : '100%', zIndex : 1, background : 'white' }}>
+            <div style={{ position: 'sticky', top: 0, left: 0, width: '100%', zIndex: 1, background: 'white' }}>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
                     <div>
                         <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
@@ -131,24 +131,24 @@ export class Header extends Component {
                 <div style={{ display: 'inline', marginBottom: '50px' }}>
                     <span>
                         <a class='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
-                        //feeds  //
-                        </a>
+                            feeds
+                        </a>&nbsp;&nbsp;
                         <a class='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
-                            publish  //
-                        </a>
+                            publish
+                        </a>&nbsp;&nbsp;
                         {this.context.account ?
                             <span>
                                 <a class='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
-                                    assets //
-                                </a>
+                                    assets
+                                </a>&nbsp;&nbsp;
                                 <a class='style' onClick={() => this.context.setSelected('config')} href='#/config'>
-                                    config //
-                                </a>
+                                    config
+                                </a>&nbsp;&nbsp;
                             </span>
                             : undefined
                         }
                         <a class='style' onClick={() => this.context.setSelected('about')} href='#/about'>
-                            about //
+                            about
                         </a><br /><br />
                         <span style={{ float: 'right' }}>
                             {/*                             network:
@@ -185,7 +185,7 @@ export class Header extends Component {
                     </span>
                 </div>
                 {
-                    this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' && this.context.selected != 'exchange'?
+                    this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' && this.context.selected != 'exchange' ?
                         <div>
                             <input type="text" name="search" placeholder="search ↵" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
                         </div>

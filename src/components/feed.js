@@ -12,14 +12,14 @@ function toHex(d) {
     return (Number(d).toString(16)).slice(-2).toUpperCase()
 }
 
-const metadata = async (acc) => {
+const metadata = async (offset) => {
 
     const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
 
     const tokensQuery = `
     query 
       {
-        assets (orderBy: timestamp,  orderDirection: desc, where : { available_not : "0", mimeType_not : "" }) {
+        assets (first : 8, skip : ${offset}, orderBy: timestamp,  orderDirection: desc, where : { available_not : "0", mimeType_not : "" }) {
             id
             metadata
             image
@@ -34,7 +34,20 @@ const metadata = async (acc) => {
 
     const data = await client.query(tokensQuery).toPromise();
     console.log(data.data.assets)
-    return data.data.assets
+    let assets = data.data.assets
+    assets = assets.map(async e => {
+        if (e.mimeType?.split('/')[0] == 'text') {
+            e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            return e
+        } else {
+            return e
+        }
+    })
+
+
+    return await Promise.all(assets).then(values => values)
+    //    this.setState({ arr: values, loading: false })
+    //})
 
 }
 
@@ -53,26 +66,23 @@ export class Feed extends Component {
         offset: 0
     }
 
-    componentWillMount = async () => {
-        var aux = await metadata()
-        aux = aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') {
-                e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
-                return e
-            } else {
-                return e
-            }
-        })
+    componentWillMount = async () => this.setState({ arr: (await metadata(this.state.offset)).slice(this.state.offset, this.state.offset + 8), loading: false })
 
+    next = async () => {
+        this.setState({ loading: true })
+        this.setState({ arr: await metadata(this.state.offset + 8), loading: false })
+        this.setState({ offset: this.state.offset + 8 })
+    }
 
-        Promise.all(aux).then(values => {
-            this.setState({ arr: values, loading: false })
-        })
+    previous = async () => {
+        this.setState({ loading: true })
+        this.setState({ arr: await metadata(this.state.offset - 8), loading: false })
+        this.setState({ offset: this.state.offset - 8 })
     }
 
     render() {
         return (
-            <div><br/>
+            <div><br />
                 {
                     !this.state.loading ?
                         <div class='row'><br />
@@ -135,7 +145,7 @@ export class Feed extends Component {
                                                                             <a href={`#/asset/${toHex(e.id)}`}>
                                                                                 <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} /><br />
 
-                                                                                <audio controls style={{ width : '100%' }}>
+                                                                                <audio controls style={{ width: '100%' }}>
                                                                                     <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
                                                                                 </audio>
                                                                             </a>
@@ -156,8 +166,28 @@ export class Feed extends Component {
                         :
                         undefined
                 }
+                <>
+                    <span style={{ marginLeft : '45%', position : 'absolute' }}>
+                        {
+                            this.state.offset != 0 ?
+                                <a class='style' onClick={this.previous} href='#/'>
+                                    &#60;&#60;&#60;
+                                </a>
+                                :
+                                undefined
+                        }
+                        &nbsp;
+                        {
+                            this.state.arr.length != 0 ?
+                                <a class='style' onClick={this.next} href='#/'>
+                                    &#62;&#62;&#62;
+                                </a>
+                                :
+                                undefined
+                        }
+                    </span><br /><br />
+                </>
             </div>
         )
     }
-
 }

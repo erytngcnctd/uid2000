@@ -30,7 +30,7 @@ const assets = async (address) => {
 
     const client = createClient({
         url: APIURL
-    });
+    })
 
     const data = await client.query(tokensQuery).toPromise();
     return data.data?.assets
@@ -65,52 +65,28 @@ const collection = async (address, creations) => {
 
     const client = createClient({
         url: APIURL
-    });
-
+    })
 
     let _out = (await client.query(from).toPromise()).data.transfers
     let _in = (await client.query(to).toPromise()).data.transfers
 
     // remove creations
 
-    //let x0 = _in.filter(e => e.from == "0x0000000000000000000000000000000000000000")
-
     _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000" && !creations.map(e => e.id).includes(e.tokenId))
 
     _in.map(e => e.value = Number(e.value))
     console.log(_in)
-    //this.setState({ arr : _in })
-    //let id_in = _.uniqBy(_in.map(e => Number(e.tokenId)), 'tokenId')
+
     _out.map(e => e.value = Number(e.value))
-    //let id_out = _.uniqBy(_out.map(e => Number(e.tokenId)), 'tokenId')
     console.log(_out)
+
     // filter market/burn/secondary
 
-    //let balance_in = _in.map(i => { return ({ id: i.tokenId, count: _.sumBy(_in.filter(j => i.tokenId == j.tokenId), 'value') }) })
-    //let balance_out = _out.map(i => { return ({ id: i.tokenId, count: _.sumBy(_out.filter(j => i.tokenId == j.tokenId), 'value') }) })
-    //console.log(balance_in, balance_out)
-
-    // unique by
-    //balance_in = _.uniqBy(balance_in, 'id')
-    //balance_out = _.uniqBy(balance_out, 'id')
-
-    //let collection = balance_in.map(i => balance_out.map(j => {
-    //    if (i.id === j.id) { if (j.count - i.count != 0) console.log(j.id); return { id: j.id, amount: j.count - i.count }; }
-    //}))
-    //console.log(collection)
-    //_out = _out.filter(e => e._to != '0x50a173157dc0627e0e9866e3804036764808ce8b')
-    //_in.map(i => i.map(j => { if (i._id == j._id) i}))
-
-    //_out.map(i => { _in.forEach(j => { if (i._id == j._id) i._value = i._value - j._value }) })
-    //let data = [..._in, ..._out]
-    //console.log(_in, _out)
-    //data = data.filter(e => e._from != "0x0000000000000000000000000000000000000000")
-    //console.log(data)
-
-
     let id_in = _in.map(e => e.tokenId)
+
     // in - out + on sale
     console.log(JSON.stringify(id_in))
+
     const metadata = `query
     {
         assets ( where : { id_in : ${JSON.stringify(id_in)}, mimeType_not : "" }, orderBy: timestamp,  orderDirection: desc) {
@@ -141,7 +117,7 @@ const getID = async (id) => {
 
     const client = createClient({
         url: APIURL
-    });
+    })
 
 
     let res = (await client.query(transfers).toPromise()).data
@@ -178,9 +154,12 @@ export class Assets extends Component {
         creations: [],
         collection: [],
         arr: [],
+        aux: [],
         uid: undefined, // ungrund id
         id: undefined, // wallet
-        description: undefined
+        description: undefined,
+        offset: 0,
+        section: undefined
     }
 
     componentWillMount = async () => {
@@ -204,12 +183,12 @@ export class Assets extends Component {
 
         Promise.all(aux).then(values => {
             console.log(values)
-            this.setState({ arr: values, creations: values, loading: false })
+            this.setState({ arr: values.slice(this.state.offset, this.state.offset + 8), aux: values, creations: values, loading: false })
         })
 
     }
 
-    setAssets = async (id) => {
+    setCreations = async id => {
         this.setState({ loading: true })
 
         let aux = await assets(id)
@@ -220,12 +199,12 @@ export class Assets extends Component {
         })
 
         Promise.all(aux).then(values => {
-            this.setState({ arr: values, loading: false })
+            this.setState({ arr: values.slice(this.state.offset, this.state.offset + 8), aux: values, loading: false })
         })
 
     }
 
-    setCollection = async (id) => {
+    setCollection = async id => {
         this.setState({ loading: true })
 
         let aux = await collection(id, this.state.creations)
@@ -236,9 +215,21 @@ export class Assets extends Component {
         })
 
         Promise.all(aux).then(values => {
-            this.setState({ arr: values, loading: false })
+            this.setState({ arr: values.slice(this.state.offset, this.state.offset + 8), aux: values, loading: false })
         })
 
+    }
+
+    next = async () => {
+        this.setState({ loading: true })
+        this.setState({ arr: this.state.aux.slice(this.state.offset + 8, this.state.offset + 16), loading: false })
+        this.setState({ offset: this.state.offset + 8, loading: false })
+    }
+
+    previous = async () => {
+        this.setState({ loading: true })
+        this.setState({ arr: this.state.aux.slice(this.state.offset - 8, this.state.offset) })
+        this.setState({ offset: this.state.offset - 8, loading: false })
     }
 
     render() {
@@ -254,9 +245,9 @@ export class Assets extends Component {
                                         :
                                         <a class="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.id.slice(0, 7)}...{this.state.id.slice(36, 42)}</a>
                                 }
-                                <div>
-                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => this.setAssets(this.state.id)}>//creations //</a>
-                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => this.setCollection(this.state.id)}>collection //</a>
+                                <div><br />
+                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => { this.setCreations(this.state.id); this.setState({ section: 'creations' }); this.setState({ offset: 0 }) }}>creations</a>&nbsp;&nbsp;
+                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => { this.setCollection(this.state.id); this.setState({ section: 'collection' }); this.setState({ offset: 0 }) }}>collection</a>
                                 </div>
                                 <div class="row">
                                     {
@@ -298,7 +289,7 @@ export class Assets extends Component {
                                                                 <div>
                                                                     <a href={`#/asset/${toHex(e.id)}`}>
                                                                         <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} />
-                                                                        <audio controls style={{ width : '100%' }}>
+                                                                        <audio controls style={{ width: '100%' }}>
                                                                             <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
                                                                         </audio>
                                                                     </a>
@@ -323,6 +314,28 @@ export class Assets extends Component {
                                         })
                                     }
                                 </div>
+                                <>
+                                    <span style={{ marginLeft : '45%', position : 'absolute' }}>
+                                        {
+                                            this.state.offset != 0 ?
+                                                <a class='style' onClick={this.previous} style={{ cursor: 'pointer' }}>
+                                                    &#60;&#60;&#60;
+                                                </a>
+                                                :
+                                                undefined
+                                        }
+                                        &nbsp;
+                                        {
+                                            this.state.arr.length == 8?
+                                                <a class='style' onClick={this.next} style={{ cursor: 'pointer' }}>
+                                                    &#62;&#62;&#62;
+                                                </a>
+                                                :
+                                                undefined
+                                        }
+                                        <br />
+                                    </span>
+                                </>
                             </div>
                             :
                             undefined
