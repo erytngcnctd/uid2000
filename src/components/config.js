@@ -35,7 +35,7 @@ export class Config extends Component {
     render() {
 
         return (
-            <div>
+            <div><br/>
                 <input type="text" placeholder="id" name="id" onChange={this.handleChange}></input><br />
                 <input type="text" placeholder="description" name="description" onChange={this.handleChange}></input><br />
                 {/*             <input type="text" placeholder="RPC" name="RPC"></input><br />

@@ -192,7 +192,7 @@ export class Mint extends Component {
                         this.context.loading ?
                             <Loading />
                             :
-                            <div>
+                            <div><br/>
                                 <div>
                                     <input type="text" placeholder="title" name="title" onChange={this.handleChange} /><br />
                                     <input type="text" placeholder="description" name="description" onChange={this.handleChange} /><br />

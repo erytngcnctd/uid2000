@@ -106,12 +106,7 @@ export class Header extends Component {
         return (
             <div style={{ position: 'sticky', top: 0, left: 0, width: '100%', zIndex: 1, background: 'white' }}>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
-                    <div>
-                        <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
-                        {/*                         <span style={{ float: 'right', marginTop: '5px' }}>
-                            <a class='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
-                        </span> */}
-                        {
+                {
                             !this.context.sync || !this.context.account ?
                                 <span style={{ float: 'right', marginTop: '15px' }}>
                                     <a class='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={this.sync}>sync</a>
@@ -126,9 +121,25 @@ export class Header extends Component {
                                     </span>
                                 </div>
                         }
+                    <div>
+                        <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
+                        {
+                            /*                         <span style={{ float: 'right', marginTop: '5px' }}>
+                                <a class='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
+                            </span> */
+                        }
+
+                        {
+                            //this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' && this.context.selected != 'exchange' ?
+                                <div style={{ paddingTop: '50px' }}>
+                                    <input type="text" name="search" placeholder="search ↵" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
+                                </div>
+                            //    :
+                            //    undefined
+                        }
                     </div>
                 </div>
-                <div style={{ display: 'inline', marginBottom: '50px' }}>
+                <div style={{  paddingTop: '35px' }}>
                     <span>
                         <a class='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
                             feeds
@@ -149,7 +160,7 @@ export class Header extends Component {
                         }
                         <a class='style' onClick={() => this.context.setSelected('about')} href='#/about'>
                             about
-                        </a><br /><br />
+                        </a>
                         <span style={{ float: 'right' }}>
                             {/*                             network:
                             <select style={{ border: 'none', fontFamily: 'monospace' }}>
@@ -184,14 +195,6 @@ export class Header extends Component {
                         <a href='collections'></a> */}
                     </span>
                 </div>
-                {
-                    this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' && this.context.selected != 'exchange' ?
-                        <div>
-                            <input type="text" name="search" placeholder="search ↵" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
-                        </div>
-                        :
-                        undefined
-                }
             </div>
         )
     }
