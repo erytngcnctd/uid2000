@@ -314,7 +314,11 @@ export class Assets extends Component {
                                         })
                                     }
                                 </div>
-                                <>
+                            </div>
+                            :
+                            undefined
+                    }
+                                                    <>
                                     <span style={{ marginLeft : '45%', position : 'absolute' }}>
                                         {
                                             this.state.offset != 0 ?
@@ -336,10 +340,6 @@ export class Assets extends Component {
                                         <br />
                                     </span>
                                 </>
-                            </div>
-                            :
-                            undefined
-                    }
                 </div>
             </div>
         )
