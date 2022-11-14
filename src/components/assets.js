@@ -172,12 +172,12 @@ export class Assets extends Component {
         this.setState({
             uid: uid?.ungrundId ? uid.ungrundId : undefined,
             description: uid?.description ? uid.description : undefined,
-            id: uid?.id ? uid.id : window.location.hash.split('/')[1],
-            loading: false
+            id: uid?.id ? uid.id : window.location.hash.split('/')[1]
         })
 
+        console.log(aux)
         aux = await aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
@@ -194,11 +194,12 @@ export class Assets extends Component {
         let aux = await assets(id)
 
         aux = await aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
         Promise.all(aux).then(values => {
+            console.log(values)
             this.setState({ arr: values.slice(this.state.offset, this.state.offset + 8), aux: values, loading: false })
         })
 
@@ -210,7 +211,7 @@ export class Assets extends Component {
         let aux = await collection(id, this.state.creations)
 
         aux = await aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
@@ -279,7 +280,7 @@ export class Assets extends Component {
                                                                 <div>
                                                                     <a href={`#/asset/${toHex(e.id)}`}>
                                                                         <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
-                                                                            <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`}></source>
+                                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`}></source>
                                                                         </video>
                                                                     </a>
                                                                 </div> : undefined
@@ -288,9 +289,9 @@ export class Assets extends Component {
                                                             e.mimeType?.split('/')[0] == 'audio' ?
                                                                 <div>
                                                                     <a href={`#/asset/${toHex(e.id)}`}>
-                                                                        <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} />
+                                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`} />
                                                                         <audio controls style={{ width: '100%' }}>
-                                                                            <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
+                                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`} />
                                                                         </audio>
                                                                     </a>
                                                                 </div> : undefined
@@ -318,28 +319,28 @@ export class Assets extends Component {
                             :
                             undefined
                     }
-                                                    <>
-                                    <span style={{ marginLeft : '45%', position : 'absolute' }}>
-                                        {
-                                            this.state.offset != 0 ?
-                                                <a class='style' onClick={this.previous} style={{ cursor: 'pointer' }}>
-                                                    &#60;&#60;&#60;
-                                                </a>
-                                                :
-                                                undefined
-                                        }
-                                        &nbsp;
-                                        {
-                                            this.state.arr.length == 8?
-                                                <a class='style' onClick={this.next} style={{ cursor: 'pointer' }}>
-                                                    &#62;&#62;&#62;
-                                                </a>
-                                                :
-                                                undefined
-                                        }
-                                        <br />
-                                    </span>
-                                </>
+                    <>
+                        <span style={{ marginLeft: '45%', position: 'absolute' }}>
+                            {
+                                this.state.offset != 0 ?
+                                    <a class='style' onClick={this.previous} style={{ cursor: 'pointer' }}>
+                                        &#60;&#60;&#60;
+                                    </a>
+                                    :
+                                    undefined
+                            }
+                            &nbsp;
+                            {
+                                this.state.arr.length == 8 ?
+                                    <a class='style' onClick={this.next} style={{ cursor: 'pointer' }}>
+                                        &#62;&#62;&#62;
+                                    </a>
+                                    :
+                                    undefined
+                            }
+                            <br />
+                        </span>
+                    </>
                 </div>
             </div>
         )

@@ -37,7 +37,7 @@ const metadata = async (offset) => {
     let assets = data.data.assets
     assets = assets.map(async e => {
         if (e.mimeType?.split('/')[0] == 'text') {
-            e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         } else {
             return e
@@ -121,7 +121,7 @@ export class Feed extends Component {
                                                                         <div>
                                                                             <a href={`#/asset/${toHex(e.id)}`}>
                                                                                 <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
-                                                                                    <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`}></source>
+                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`}></source>
                                                                                 </video>
                                                                             </a>
                                                                         </div> : undefined
@@ -143,10 +143,10 @@ export class Feed extends Component {
                                                                     e.mimeType?.split('/')[0] == 'audio' ?
                                                                         <div>
                                                                             <a href={`#/asset/${toHex(e.id)}`}>
-                                                                                <img src={`https://ipfs.io/ipfs/${e.image.split('//')[1]}`} /><br />
+                                                                                <img src={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`} /><br />
 
                                                                                 <audio controls style={{ width: '100%' }}>
-                                                                                    <source src={`https://ipfs.io/ipfs/${e.animation.split('//')[1]}`} />
+                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`} />
                                                                                 </audio>
                                                                             </a>
                                                                         </div> : undefined

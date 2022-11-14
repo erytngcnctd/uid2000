@@ -3,6 +3,7 @@ import { UngrundContext } from '../context/UngrundContext'
 import { Card } from 'react-bootstrap'
 import { Search } from './search'
 import { Router, Redirect } from 'react-router'
+import icon from '../media/favicon.jpeg';
 
 const Web3 = require('web3')
 const ls = require('local-storage')
@@ -122,6 +123,7 @@ export class Header extends Component {
                                 </div>
                         }
                     <div>
+                        {/* <span> <img src={icon} alt="███" /></span> */}
                         <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
                         {
                             /*                         <span style={{ float: 'right', marginTop: '5px' }}>
@@ -142,7 +144,7 @@ export class Header extends Component {
                 <div style={{  paddingTop: '35px' }}>
                     <span>
                         <a class='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
-                            feeds
+                            feed
                         </a>&nbsp;&nbsp;
                         <a class='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
                             publish
