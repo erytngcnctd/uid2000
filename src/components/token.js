@@ -125,7 +125,7 @@ export class Token extends Component {
         let metadata = await this.metadata(tokenId)
         console.log(metadata)
         let aux = metadata.assets.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://ipfs.io/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
@@ -439,7 +439,7 @@ export class Token extends Component {
                             {this.state.option == 'burn' ? <Burn id={this.state.token[0].id} /> : undefined}
                             {this.state.option == 'transfer' ? <Transfer id={this.state.token[0].id} /> : undefined}
                             <br />
-                            <a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].metadata.split('//')[1]}`}>metadata</a>&nbsp;&nbsp;<a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].animation ? this.state.token[0].animation.split('//')[1] : this.state.token[0].image.split('//')[1]}`}>view on ipfs</a>
+                            <a class='style' href={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].metadata.split('//')[1]}`}>metadata</a>&nbsp;&nbsp;<a class='style' href={`https://ipfs.io/ipfs/${this.state.token[0].animation ? this.state.token[0].animation.split('//')[1] : this.state.token[0].image.split('//')[1]}`}>view on ipfs</a>
                         </div>
                         :
                         undefined
