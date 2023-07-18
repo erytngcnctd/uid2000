@@ -1,6 +1,9 @@
 import React, { createContext, Component } from 'react'
-import { withRouter } from 'react-router'
-import subjkts from '../abis/subjkts.json'
+// import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
+// import { Web3Modal } from '@web3modal/html'
+// import { configureChains, createConfig } from '@wagmi/core'
+// import { polygon } from '@wagmi/core/chains'
+// import subjkts from '../abis/subjkts.json'
 import minter from '../abis/minter.json'
 import v1 from '../abis/v1.json'
 import erc1155 from '../abis/erc1155.json'
@@ -9,6 +12,22 @@ import aggregator from '../abis/aggregator.json'
 import id from '../abis/id.json'
 
 export const UngrundContext = createContext()
+// const chains = [polygon]
+// const projectId = 'f3f6cde61fee13c3e6db2a0c47d0e7c2'
+
+// const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
+// const wagmiConfig = createConfig({
+//   autoConnect: true,
+//   connectors: w3mConnectors({ projectId, chains }),
+//   publicClient
+// })
+// const ethereumClient = new EthereumClient(wagmiConfig, chains)
+// const web3modal = new Web3Modal({
+//   projectId,
+//   themeMode: 'dark'
+//    },
+//   ethereumClient
+//   )
 
 class UngrundContextProviderClass extends Component {
   constructor(props) {
@@ -51,6 +70,7 @@ class UngrundContextProviderClass extends Component {
       erc20Abi: erc20,
       account: undefined,
       token: undefined,
+      // wallet: web3modal,
       setAccount: (account, sync) => this.setState({ account: account, sync : sync }),
       open: false,
       setOpen : (open) => this.setState({ open : open }),

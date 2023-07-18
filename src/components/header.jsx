@@ -1,14 +1,18 @@
 import React, { Component, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
-import { Card } from 'react-bootstrap'
 import { Search } from './search'
-import { Router, Redirect } from 'react-router'
+import { disconnect,connect } from '@wagmi/core'
+import { getAccount, getContract } from '@wagmi/core'
+import { SyncButton } from './sync/'
 import icon from '../media/favicon.jpeg';
 
-const Web3 = require('web3')
-const ls = require('local-storage')
 
-var web3;
+// import { Web3 } from 'web3'
+// const Web3 = require('web3')
+// const localStorage = require('local-storage')
+
+// var web3;
+
 
 export class Header extends Component {
 
@@ -32,7 +36,7 @@ export class Header extends Component {
         //console.log(window.location.hash.split('/')[1])
         this.context.setSelected(window.location.hash.split('/')[1])
 
-        this.context.setAccount(ls.get('account'), ls.get('sync'))
+        this.context.setAccount(localStorage.getItem('account') || null , localStorage.getItem('sync') || null)
 
         window.crypto.subtle.generateKey(
             {
@@ -45,54 +49,72 @@ export class Header extends Component {
             ["encrypt", "decrypt"]
         ).then((keyPair) => {
             window.crypto.subtle.exportKey('jwk', keyPair.publicKey).then(res => {
-                if (!ls.get('pk')) ls.set('pk', res)
+                if (!localStorage.getItem('pk')) localStorage.setItem('pk', res)
             })
             window.crypto.subtle.exportKey('jwk', keyPair.privateKey).then(res => {
-                if (!ls.get('sk')) ls.set('sk', res)
+                if (!localStorage.getItem('sk')) localStorage.setItem('sk', res)
             })
         });
     }
 
-    sync = async () => {
-        window.ethereum.enable()
-        web3 = new Web3(window.ethereum);
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-        this.context.setAccount(web3.eth.currentProvider.selectedAddress, true)
-        ls.set('account', web3.eth.currentProvider.selectedAddress)
-        ls.set('sync', true)
-    }
+    // sync = async () => {
+    //     // window.ethereum.enable()
+    //     // web3 = new Web3(window.ethereum);
+    //     // window.ethereum.request({ method: 'eth_requestAccounts' })
+    //     await this.context.wallet.openModal({
+    //         options: {
+    //             route: 'SelectNetwork'
+    //         }
+    //     })
+    //     // await connect()
+    //     // let test = connect()    
+    //     let account = getAccount()
+    //     console.log('acc', account)
+    //     if (account.address !== undefined) {
+    //         console.log('acc', account)
+    //         this.context.setAccount(account.address, true)
+    //         localStorage.setItem('account', account.address)
+    //         localStorage.setItem('sync', true)
+    //     }
+    //     // this.context.setAccount(web3.eth.currentProvider.selectedAddress, true)
+    //     // localStorage.setItem('account', web3.eth.currentProvider.selectedAddress)
+    //     // localStorage.setItem('sync', true)
+    // }
 
-    unsync = async () => {
-        this.context.setAccount(undefined, false)
-        ls.set('account', undefined)
-        ls.set('sync', false)
-    }
+    // unsync = async () => {
+    //     disconnect()
+    //     this.context.setAccount('', false)
+    //     localStorage.removeItem('account')
+    //     localStorage.setItem('sync', false)
+    // }
 
-    addToken = async () => {
+    // look into later. . .
 
-        const tokenAddress = '0xfb8B533921c00E2C7EfA59F8f0b8C9Dcf3904aAE';
-        const tokenSymbol = 'CTFSH';
-        const tokenDecimals = 6;
-        const tokenImage = 'https://ipfs.io/ipfs/QmbETnBNoSqTwNPxUdPj1S3f8d3FbLzXx7J7KhMDUHzBk8';
+    // addToken = async () => {
 
-        window.web3 = new Web3(window.web3.currentProvider)
+    //     const tokenAddress = '0xfb8B533921c00E2C7EfA59F8f0b8C9Dcf3904aAE';
+    //     const tokenSymbol = 'CTFSH';
+    //     const tokenDecimals = 6;
+    //     const tokenImage = 'https://ipfs.io/ipfs/QmbETnBNoSqTwNPxUdPj1S3f8d3FbLzXx7J7KhMDUHzBk8';
 
-        try {
-            await window.web3.currentProvider.sendAsync({
-                method: 'wallet_watchAsset',
-                params: {
-                    type: 'ERC20', // Initially only supports ERC20, but eventually more!
-                    options: {
-                        address: tokenAddress, // The address that the token is at.
-                        symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
-                        decimals: tokenDecimals, // The number of decimals in the token
-                        image: tokenImage, // A string url of the token logo
-                    },
-                },
-            });
+    //     window.web3 = new Web3(window.web3.currentProvider)
 
-        } catch (err) { }
-    }
+    //     try {
+    //         await window.web3.currentProvider.sendAsync({
+    //             method: 'wallet_watchAsset',
+    //             params: {
+    //                 type: 'ERC20', // Initially only supports ERC20, but eventually more!
+    //                 options: {
+    //                     address: tokenAddress, // The address that the token is at.
+    //                     symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
+    //                     decimals: tokenDecimals, // The number of decimals in the token
+    //                     image: tokenImage, // A string url of the token logo
+    //                 },
+    //             },
+    //         });
+
+    //     } catch (err) { }
+    // }
 
     handleKey = e => {
         if (e.key == 'Enter') {
@@ -103,14 +125,14 @@ export class Header extends Component {
 
     handleChange = e => this.setState({ [e.target.name]: e.target.value })
 
-    render() {
+    render() {  
         return (
             <div style={{ position: 'sticky', top: 0, left: 0, width: '100%', zIndex: 1, background: 'white' }}>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
-                {
+                {/* {
                             !this.context.sync || !this.context.account ?
                                 <span style={{ float: 'right', marginTop: '15px' }}>
-                                    <a class='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={this.sync}>sync</a>
+                                    <a className='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={this.sync}>sync</a>
                                 </span>
                                 :
                                 <div style={{ display: 'inline' }}>
@@ -118,16 +140,17 @@ export class Header extends Component {
                                         {this.context.account.slice(0, 7)}...{this.context.account.slice(this.context.account.length - 5, this.context.account.length)}
                                     </span>
                                     <span style={{ float: 'right', marginTop: '15px' }}>
-                                        <a class='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => this.unsync()}>unsync</a>
+                                        <a className='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => this.unsync()}>unsync</a>
                                     </span>
                                 </div>
-                        }
+                        } */}
+                        <SyncButton /> 
                     <div>
                         {/* <span> <img src={icon} alt="███" /></span> */}
                         <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
                         {
                             /*                         <span style={{ float: 'right', marginTop: '5px' }}>
-                                <a class='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
+                                <a className='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
                             </span> */
                         }
 
@@ -143,24 +166,24 @@ export class Header extends Component {
                 </div>
                 <div style={{  paddingTop: '35px' }}>
                     <span>
-                        <a class='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
+                        <a className='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
                             feed
                         </a>&nbsp;&nbsp;
-                        <a class='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
+                        <a className='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
                             publish
                         </a>&nbsp;&nbsp;
                         {this.context.account ?
                             <span>
-                                <a class='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
+                                <a className='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
                                     assets
                                 </a>&nbsp;&nbsp;
-                                <a class='style' onClick={() => this.context.setSelected('config')} href='#/config'>
+                                <a className='style' onClick={() => this.context.setSelected('config')} href='#/config'>
                                     config
                                 </a>&nbsp;&nbsp;
                             </span>
                             : undefined
                         }
-                        <a class='style' onClick={() => this.context.setSelected('about')} href='#/about'>
+                        <a className='style' onClick={() => this.context.setSelected('about')} href='#/about'>
                             about
                         </a>
                         <span style={{ float: 'right' }}>
@@ -182,10 +205,10 @@ export class Header extends Component {
                         {/*                         {
                             this.context.selected == 'mint' ?
                                 <div>
-                                    <a class='style' style={{ cursor: 'pointer' }} onClick={() => this.context.setOpen(true)}>
+                                    <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.context.setOpen(true)}>
                                         //open collection //
                                     </a>
-                                    <a class='style' style={{ cursor: 'pointer' }} onClick={() => this.context.setOpen(false)}>
+                                    <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.context.setOpen(false)}>
                                         private collections
                                     </a>
                                 </div> : undefined

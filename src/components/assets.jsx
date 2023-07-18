@@ -1,50 +1,53 @@
 import axios from 'axios'
-import { id } from 'ethers/lib/utils'
 import React, { Component } from 'react'
-import { createClient } from 'urql'
+import { createClient, cacheExchange, fetchExchange } from 'urql/core'
 import { UngrundContext } from '../context/UngrundContext'
-import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack'
+import { Document, Page, pdfjs } from 'react-pdf'
 import ReactMarkdown from 'react-markdown'
-
-const _ = require('lodash')
+import { _ } from 'lodash'
+// const _ = require('lodash')
 
 function toHex(d) {
     return (Number(d).toString(16)).slice(-2).toUpperCase()
 }
 
 const assets = async (address) => {
-    console.log(assets)
-    const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
+    const APIURL = "https://api.studio.thegraph.com/query/49421/ungrund_test/v0.0.44"
+    // available_not : "0"
     const tokensQuery = `query
     {
-        assets(where: { from : "${address}", available_not : "0", mimeType_not : "" }, orderBy: timestamp,  orderDirection: desc) {
-                  id
-                  mimeType
-                  image
-                  animation
-                  metadata
+        uris(where: { from : "${address}", tokenMetaData_: {mimeType_not: ""}}, orderBy: timestamp,  orderDirection: desc) {
+                  tokenId
+                  tokenMetaData {
+                    mimeType
+                    image
+                    animation_url
+                  }
+                  metaDataUri
                   from
                   timestamp
         }
     }`
 
     const client = createClient({
-        url: APIURL
+        url: APIURL,
+        exchanges: [cacheExchange, fetchExchange]
     })
 
     const data = await client.query(tokensQuery).toPromise();
-    return data.data?.assets
+    console.log(data)
+    return data.data?.uris
 
 }
 
 const collection = async (address, creations) => {
 
-    const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
+    const APIURL = "https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44"
 
     const from = `query
     {
         transfers(where: { from : "${address}" }) {
-                  id
+                  tokenId
                   value
                   from
                   tokenId
@@ -55,7 +58,6 @@ const collection = async (address, creations) => {
     const to = `query
     {
         transfers(where: { to : "${address}" }) {
-                  id
                   value
                   tokenId
                   from
@@ -64,7 +66,8 @@ const collection = async (address, creations) => {
     }`
 
     const client = createClient({
-        url: APIURL
+        url: APIURL,
+        exchanges: [cacheExchange, fetchExchange]
     })
 
     let _out = (await client.query(from).toPromise()).data.transfers
@@ -72,7 +75,7 @@ const collection = async (address, creations) => {
 
     // remove creations
 
-    _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000" && !creations.map(e => e.id).includes(e.tokenId))
+    _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000" && !creations.map(e => e.tokenId).includes(e.tokenId))
 
     _in.map(e => e.value = Number(e.value))
     console.log(_in)
@@ -89,16 +92,19 @@ const collection = async (address, creations) => {
 
     const metadata = `query
     {
-        assets ( where : { id_in : ${JSON.stringify(id_in)}, mimeType_not : "" }, orderBy: timestamp,  orderDirection: desc) {
-          metadata
-          id
-          animation
-          mimeType
-          image
+        uris ( where : { tokenId_in : ${JSON.stringify(id_in)}, tokenMetaData_: {mimeType_not: ""} }, orderBy: timestamp,  orderDirection: desc) {
+          metaDataUri
+          tokenId
+          tokenMetaData{
+            animation_url
+            mimeType
+            image
+          }
         }
     }`
-
-    return (await client.query(metadata).toPromise()).data.assets
+    let data = await client.query(metadata).toPromise()
+    console.log('data', data)
+    return data.data.uris
 
 }
 
@@ -107,42 +113,50 @@ const getID = async (id) => {
     console.log(decodeURI(id))
     const transfers = `query
     {
-        ungrundIDs (where: { id : "${encodeURI(id)}" }) {
+        ungrundIds (where: { id : "${encodeURI(id)}" }) {
                   id
-                  metadata
-                  description
+                  metaDataUri
+                  uidMetaData {
+                    description
+                    image
+                  }
                   ungrundId
         }
     }`
 
     const client = createClient({
-        url: APIURL
+        url: APIURL,
+        exchanges: [cacheExchange, fetchExchange]
     })
 
 
     let res = (await client.query(transfers).toPromise()).data
-    return res.ungrundIDs[0]
+    return res?.ungrundIds[0] || null
 }
 
-const ungrundID = async (uid) => {
+const ungrundID = async (id) => {
     const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
-    const transfers = `query
+    const uids = `query
     {
-        ungrundIDs (where: { ungrundId : "${uid}" }) {
+        ungrundIds (where: { id : "${encodeURI(id)}" }) {
                   id
-                  metadata
-                  description
+                  metaDataUri
+                  uidMetaData {
+                    description
+                    image
+                  }
                   ungrundId
         }
     }`
 
     const client = createClient({
-        url: APIURL
+        url: APIURL,
+        exchanges: [cacheExchange, fetchExchange]
     });
 
 
-    let res = (await client.query(transfers).toPromise()).data
-    return res.ungrundIDs[0]
+    let res = (await client.query(uids).toPromise()).data
+    return res?.ungrundIds[0] || null
 }
 
 export class Assets extends Component {
@@ -171,13 +185,13 @@ export class Assets extends Component {
         //window.location.hash = uid.ungrundId
         this.setState({
             uid: uid?.ungrundId ? uid.ungrundId : undefined,
-            description: uid?.description ? uid.description : undefined,
+            description: uid?.uidMetaData.description ? uid.uidMetaData.description : undefined,
             id: uid?.id ? uid.id : window.location.hash.split('/')[1]
         })
 
         console.log(aux)
         aux = await aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
@@ -194,7 +208,7 @@ export class Assets extends Component {
         let aux = await assets(id)
 
         aux = await aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetadata.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
@@ -211,7 +225,7 @@ export class Assets extends Component {
         let aux = await collection(id, this.state.creations)
 
         aux = await aux.map(async e => {
-            if (e.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+            if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
@@ -242,32 +256,32 @@ export class Assets extends Component {
                             <div>
                                 {
                                     this.state.uid ?
-                                        <span><a class="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.uid}</a><span> {this.state.description}</span></span>
+                                        <span><a className="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.uid}</a><span> {this.state.description}</span></span>
                                         :
-                                        <a class="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.id.slice(0, 7)}...{this.state.id.slice(36, 42)}</a>
+                                        <a className="style" href={`https://polygonscan.com/address/${this.state.id}`}>{this.state.id.slice(0, 7)}...{this.state.id.slice(36, 42)}</a>
                                 }
                                 <div><br />
-                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => { this.setCreations(this.state.id); this.setState({ section: 'creations' }); this.setState({ offset: 0 }) }}>creations</a>&nbsp;&nbsp;
-                                    <a class="style" style={{ cursor: 'pointer' }} onClick={() => { this.setCollection(this.state.id); this.setState({ section: 'collection' }); this.setState({ offset: 0 }) }}>collection</a>
+                                    <a className="style" style={{ cursor: 'pointer' }} onClick={() => { this.setCreations(this.state.id); this.setState({ section: 'creations' }); this.setState({ offset: 0 }) }}>creations</a>&nbsp;&nbsp;
+                                    <a className="style" style={{ cursor: 'pointer' }} onClick={() => { this.setCollection(this.state.id); this.setState({ section: 'collection' }); this.setState({ offset: 0 }) }}>collection</a>
                                 </div>
-                                <div class="row">
+                                <div className="row">
                                     {
                                         this.state.arr.map(e => {
                                             {
                                                 return (
-                                                    <div class="column">
+                                                    <div key={e.tokenId} className="column">
                                                         {
-                                                            e.mimeType?.split('/')[0] == 'image' ?
-                                                                <a href={`#/asset/${toHex(e.id)}`}>
-                                                                    <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`} />
+                                                            e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
+                                                                <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                    <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                 </a>
                                                                 :
                                                                 undefined
                                                         }
                                                         {
-                                                            e.mimeType?.split('/')[0] == 'text' ?
-                                                                <div class='txt' style={{ maxWidth: '50vw' }}>
-                                                                    <a class='nostyle' href={`#/asset/${toHex(e.id)}`}>
+                                                            e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
+                                                                <div className='txt' style={{ maxWidth: '50vw' }}>
+                                                                    <a className='nostyle' href={`#/asset/${toHex(e.tokenId)}`}>
                                                                         <ReactMarkdown>
                                                                             {e.text}
                                                                         </ReactMarkdown>
@@ -276,32 +290,32 @@ export class Assets extends Component {
                                                                 : undefined
                                                         }
                                                         {
-                                                            e.mimeType?.split('/')[0] == 'video' ?
+                                                            e.tokenMetaData.mimeType?.split('/')[0] == 'video' ?
                                                                 <div>
-                                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                                    <a href={`#/asset/${toHex(e.tokenId)}`}>
                                                                         <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
-                                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`}></source>
+                                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`}></source>
                                                                         </video>
                                                                     </a>
                                                                 </div> : undefined
                                                         }
                                                         {
-                                                            e.mimeType?.split('/')[0] == 'audio' ?
+                                                            e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                                 <div>
-                                                                    <a href={`#/asset/${toHex(e.id)}`}>
-                                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`} />
+                                                                    <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                         <audio controls style={{ width: '100%' }}>
-                                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`} />
+                                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                                         </audio>
                                                                     </a>
                                                                 </div> : undefined
                                                         }
                                                         {
-                                                            e.mimeType == 'application/pdf' ?
+                                                            e.tokenMetaData.mimeType == 'application/pdf' ?
                                                                 <div>
-                                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                                    <a href={`#/asset/${toHex(e.tokenId)}`}>
                                                                         <Document
-                                                                            file={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`}
+                                                                            file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
                                                                         >
                                                                             <Page pageNumber={1} />
                                                                         </Document>
@@ -323,7 +337,7 @@ export class Assets extends Component {
                         <span style={{ marginLeft: '45%', position: 'absolute' }}>
                             {
                                 this.state.offset != 0 ?
-                                    <a class='style' onClick={this.previous} style={{ cursor: 'pointer' }}>
+                                    <a className='style' onClick={this.previous} style={{ cursor: 'pointer' }}>
                                         &#60;&#60;&#60;
                                     </a>
                                     :
@@ -332,7 +346,7 @@ export class Assets extends Component {
                             &nbsp;
                             {
                                 this.state.arr.length == 8 ?
-                                    <a class='style' onClick={this.next} style={{ cursor: 'pointer' }}>
+                                    <a className='style' onClick={this.next} style={{ cursor: 'pointer' }}>
                                         &#62;&#62;&#62;
                                     </a>
                                     :

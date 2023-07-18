@@ -2,11 +2,12 @@ import React, { Component, useContext, useState } from 'react'
 import { createClient, useSubscription } from 'urql'
 import { UngrundContext } from '../context/UngrundContext'
 import { Loading } from './load'
-import { ethers } from 'ethers'
 import { set } from 'lodash'
+import { Contract } from 'web3-eth-contract'
+import { Web3 } from 'web3'
 
-var Contract = require('web3-eth-contract')
-const Web3 = require('web3')
+// var Contract = require('web3-eth-contract')
+// const Web3 = require('web3')
 
 export const Swap = ({ id }) => {
 

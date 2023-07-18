@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
-const findHashtags = require('find-hashtags')
+import { findHashTags } from 'find-hashtags'
+// const findHashtags = require('find-hashtags')
 
 export const Tags = () => {
 
@@ -17,8 +18,14 @@ export const Tags = () => {
           {
             assets (where : { id: }){
               id
-              image
-              attributes
+              tokenMetadata {
+                mimeType
+                image
+                animation
+              }
+              metaDataUri
+              from
+              timestamp
             }
         }
       `

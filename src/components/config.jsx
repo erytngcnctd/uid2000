@@ -2,10 +2,12 @@
 import { Component } from "react"
 import { UngrundContext } from "../context/UngrundContext"
 import { create } from 'ipfs-http-client'
+import { Contract } from 'web3-eth-contract'
+import { Web3 } from 'web3'
 
-var Contract = require('web3-eth-contract')
-const Web3 = require('web3')
-const ls = require('local-storage')
+// var Contract = require('web3-eth-contract')
+// const Web3 = require('web3')
+// const ls = require('local-storage')
 
 export class Config extends Component {
 
@@ -29,7 +31,7 @@ export class Config extends Component {
             description : this.state.description
         }
 
-        let result = await contract.methods.register(this.state.id, `ipfs://${(await ipfs.add(await new Blob([JSON.stringify(obj)], {type: "application/json"}))).path}`).send({ from: ls.get('account') })
+        let result = await contract.methods.register(this.state.id, `ipfs://${(await ipfs.add(await new Blob([JSON.stringify(obj)], {type: "application/json"}))).path}`).send({ from: localStorage.getItem('account') })
     }
 
     render() {
@@ -46,7 +48,7 @@ export class Config extends Component {
             <label for="sensitive"> allow sensitive content</label><br/> */}
                 {/*             <button>disable erc1155 permissions</button><br/>
             <button>disable erc20 permissions</button> */}
-                <a class='style button' style={{ cursor: 'pointer' }} onClick={this.updateId}>update ungrund identity</a>
+                <a className='style button' style={{ cursor: 'pointer' }} onClick={this.updateId}>update ungrund identity</a>
             </div>
         )
     }

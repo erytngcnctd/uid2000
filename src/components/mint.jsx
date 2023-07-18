@@ -5,18 +5,22 @@ import { UngrundContext } from '../context/UngrundContext'
 import { NFTStorage, File } from 'nft.storage'
 import { create } from 'ipfs-http-client'
 import { Loading } from './load'
-import fs from 'fs'
-import WebTorrent from 'webtorrent'
+import { mime } from 'mime'
+import { findHashtags } from 'find-hashtags'
+import { Contract } from 'web3-eth-contract'
+import { Web3 } from 'web3'
 
-let mime = require('mime')
-let findHashtags = require('find-hashtags')
-let createTorrent = require('create-torrent')
-let Contract = require('web3-eth-contract')
-let Web3 = require('web3')
+// import WebTorrent from 'webtorrent'
+
+// let mime = require('mime')
+// let findHashtags = require('find-hashtags')
+// let createTorrent = require('create-torrent')
+// let Contract = require('web3-eth-contract')
+// let Web3 = require('web3')
 let apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEY1NDdDNUIyMjMzMTc3MDZkZDdkODNEMjA4ODRkRDgxOTIxNTBiNEUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYyODE5NTc4NTc2MSwibmFtZSI6InRlc3QifQ.RED_BCrWtUgodnbLxdFV5lKxVTPruv1Cg-bcDL7jtrI'
-let ls = require('local-storage')
+// let ls = require('local-storage')
 let client = new NFTStorage({ token: apiKey })
-let wt = new WebTorrent()
+// let wt = new WebTorrent()
 
 export class Mint extends Component {
 
@@ -61,9 +65,9 @@ export class Mint extends Component {
         // https://blog.secure-monkey.com/considerations-when-using-aes-gcm-for-encrypting-files/
 
         console.log(await this.state.file.arrayBuffer())
-        console.log(ls.get('pk'))
+        console.log(localStorage.getItem('pk'))
 
-        let pk = window.crypto.subtle.importKey('jwk', ls.get('pk'), {   //these are the algorithm options
+        let pk = window.crypto.subtle.importKey('jwk', localStorage.getItem('pk'), {   //these are the algorithm options
             name: "RSA-OAEP",
             hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
         },
@@ -73,9 +77,9 @@ export class Mint extends Component {
         let encrypted = window.crypto.subtle.encrypt('RSA-OAEP', await pk, Buffer.from(await this.state.file.arrayBuffer())).then(res => res)
 
         console.log(await encrypted)
-        console.log(ls.get('sk'))
+        console.log(localStorage.getItem('sk'))
 
-        let sk = window.crypto.subtle.importKey('jwk', ls.get('sk'), {   // these are the algorithm options
+        let sk = window.crypto.subtle.importKey('jwk', localStorage.getItem('sk'), {   // these are the algorithm options
             name: "RSA-OAEP",
             hash: { name: "SHA-256" }, // can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
         },
@@ -125,11 +129,11 @@ export class Mint extends Component {
         console.log(artifact)
         artifactBuffer.name = this.state.title
         artifactBuffer.comment = this.state.description
-        console.log(await createTorrent([artifactBuffer], async (err, torrent) => {
-            if (!err) { console.log(torrent.magnetURI) }
-            console.log(await wt.add(torrent))
-            console.log(await wt.seed(torrent))
-        }))
+        // console.log(await createTorrent([artifactBuffer], async (err, torrent) => {
+        //     if (!err) { console.log(torrent.magnetURI) }
+        //     console.log(await wt.add(torrent))
+        //     console.log(await wt.seed(torrent))
+        // }))
         let obj = {}
 
         if (this.state.video) {
@@ -176,7 +180,7 @@ export class Mint extends Component {
                 this.state.amount,
                 this.state.royalties * 100,
                 `ipfs://${nft}`
-            ).send({ from: ls.get('account') })
+            ).send({ from: localStorage.getItem('account') })
             this.setState({ result: result })
             this.context.setLoading(false)
         } catch (err) {
@@ -188,7 +192,7 @@ export class Mint extends Component {
         return (
             <div>
                 {
-                    ls.get('sync') ?
+                    localStorage.getItem('sync') ?
                         this.context.loading ?
                             <Loading />
                             :
@@ -208,7 +212,7 @@ export class Mint extends Component {
                                             : undefined
                                     }
                                     <div>
-                                        <a class='style button' style={{ cursor: 'pointer' }} onClick={this.mint}>mint</a>
+                                        <a className='style button' style={{ cursor: 'pointer' }} onClick={this.mint}>mint</a>
                                     </div>
                                 </div>
                             </div>

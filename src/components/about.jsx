@@ -64,7 +64,7 @@ export const About = () => {
         <div>
             <br />
             This is an experiment led by hicetnunc2000lab intending to make digital assets accessible accross the web3 space.<br />
-            To connect with the dApp you need a <a class="style" href="https://metamask.io/">metamask wallet</a> connected to a custom RPC from Polygon Network:
+            To connect with the dApp you need a <a className="style" href="https://metamask.io/">metamask wallet</a> connected to a custom RPC from Polygon Network:
             
             <pre>
             Network Name: Polygon<br/>
@@ -73,7 +73,7 @@ export const About = () => {
             Symbol: MATIC<br/>
             Block Explorer URL: https://polygonscan.com/<br/>
             </pre>
-            <a class="style" style={{ cursor : 'pointer' }} onClick={() => connectPoly()}>connect to Polygon</a><br /><br />
+            <a className="style" style={{ cursor : 'pointer' }} onClick={() => connectPoly()}>connect to Polygon</a><br /><br />
 
 {/*             <pre>
                 Network Name: Gnosis Chain<br />
@@ -83,7 +83,7 @@ export const About = () => {
                 Block Explorer: https://blockscout.com/xdai/mainnet/
             </pre>
 
-            <a class="style" style={{ cursor : 'pointer' }} onClick={() => connectxDAI()}>connect to Gnosis</a><br /><br /> */}
+            <a className="style" style={{ cursor : 'pointer' }} onClick={() => connectxDAI()}>connect to Gnosis</a><br /><br /> */}
 {/*             <pre>
                 Network Name: Avalanche Network<br />
                 New RPC URL: https://api.avax.network/ext/bc/C/rpc<br />
@@ -95,14 +95,14 @@ export const About = () => {
             <a onClick={() => connectAvax()} href='#'>connect to AVAX</a><br /><br /> */}
 
             Exchange of digital assets can be made making use of MATIC.<br /><br />
-            To bridge assets from Ethereum Network to Polygon Network use <a class="style" href="https://wallet.polygon.technology/bridge">Polygon Bridge</a> <a class="style" href='https://www.youtube.com/watch?v=OOVzXvivgyM'>(see how to).</a><br /><br /><b>This is an experimental decentralized application use at your own risk.</b><br />
-            {/* To bridge assets from Ethereum Network to Gnosis Chain use <a class="style" href="https://bridge.xdaichain.com/">xDai Bridge</a> <a class="style" href='https://www.xdaichain.com/for-users/bridges/converting-xdai-via-bridge/moving-dai-to-xdai'>(see how to).</a><br /> */}<br />
+            To bridge assets from Ethereum Network to Polygon Network use <a className="style" href="https://wallet.polygon.technology/bridge">Polygon Bridge</a> <a className="style" href='https://www.youtube.com/watch?v=OOVzXvivgyM'>(see how to).</a><br /><br /><b>This is an experimental decentralized application use at your own risk.</b><br />
+            {/* To bridge assets from Ethereum Network to Gnosis Chain use <a className="style" href="https://bridge.xdaichain.com/">xDai Bridge</a> <a className="style" href='https://www.xdaichain.com/for-users/bridges/converting-xdai-via-bridge/moving-dai-to-xdai'>(see how to).</a><br /> */}<br />
             {/*             <div style={style}>
             </div> */}
-            <a class="style" href="https://discord.gg/faGyranTsx">discord</a><br/>
-            <a class="style" href={"mailto:hicetnunc2000@protonmail.com"}>email</a><br/><br/>
-            <a class="style" href="https://github.com/hicetnunc2000">github</a><br/>
-            <a class="style" href="https://thegraph.com/hosted-service/subgraph/crzypatchwork/ungrund">the graph</a>
+            <a className="style" href="https://discord.gg/faGyranTsx">discord</a><br/>
+            <a className="style" href={"mailto:hicetnunc2000@protonmail.com"}>email</a><br/><br/>
+            <a className="style" href="https://github.com/hicetnunc2000">github</a><br/>
+            <a className="style" href="https://thegraph.com/hosted-service/subgraph/crzypatchwork/ungrund">the graph</a>
         </div>
     )
 }

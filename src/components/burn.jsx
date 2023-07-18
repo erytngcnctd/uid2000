@@ -1,8 +1,10 @@
 import { useContext, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
+import { Contract } from 'web3-eth-contract'
+import { Web3 } from 'web3'
 
-var Contract = require('web3-eth-contract')
-const Web3 = require('web3')
+// var Contract = require('web3-eth-contract')
+// const Web3 = require('web3')
 
 export const Burn = ({ id }) => {
 

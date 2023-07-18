@@ -1,42 +1,43 @@
 import axios from 'axios'
 import React, { Component } from 'react'
-import { createClient } from 'urql'
+import { createClient, cacheExchange, fetchExchange } from 'urql/core'
 import { UngrundContext } from '../context/UngrundContext'
-import { Card, CardGroup, Row, Col } from 'react-bootstrap'
-import { Document, Page, pdfjs } from 'react-pdf/dist/esm/entry.webpack'
+import { Document, Page, pdfjs } from 'react-pdf'
 import ReactMarkdown from 'react-markdown'
 import '../App.css'
-import { Grid } from '@react-css/grid'
 
 function toHex(d) {
     return (Number(d).toString(16)).slice(-2).toUpperCase()
 }
-
+  // uris (first : 8, skip : ${offset}, orderBy: timestamp,  orderDirection: desc, where : { available_not : "0", mimeType_not : "" }) {
 const metadata = async (offset) => {
-
-    const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
-
+    const APIURL = "https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44"
     const tokensQuery = `
     query 
       {
-        assets (first : 8, skip : ${offset}, orderBy: timestamp,  orderDirection: desc, where : { available_not : "0", mimeType_not : "" }) {
+        uris (first : 8, skip : ${offset}, where : {tokenMetaData_: {mimeType_not: ""}} orderBy: timestamp,  orderDirection: desc ) {
             id
-            metadata
-            image
-            mimeType
-            animation
+            tokenId
+            tokenMetaData {
+              mimeType
+              image
+              animation_url
+            }
+            metaDataUri
+            from
+            timestamp
         }
     }`
 
     const client = createClient({
-        url: APIURL
+        url: APIURL,
+        exchanges: [cacheExchange, fetchExchange]
     });
-
     const data = await client.query(tokensQuery).toPromise();
-    console.log(data.data.assets)
-    let assets = data.data.assets
-    assets = assets.map(async e => {
-        if (e.mimeType?.split('/')[0] == 'text') {
+    console.log('d',data?.data?.uris)
+    let assets = data?.data?.uris
+    assets = assets?.map(async e => {
+        if (e.tokenMetaDatamimeType?.split('/')[0] == 'text') {
             e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         } else {
@@ -85,29 +86,29 @@ export class Feed extends Component {
             <div><br />
                 {
                     !this.state.loading ?
-                        <div class='row'><br />
+                        <div className='row'><br />
 
                             {
                                 this.state.arr.map(e => {
                                     {
                                         if (e !== undefined) {
                                             return (
-                                                <div class='column'>
+                                                <div key={e.tokenId} className='column'>
                                                     {
-                                                        e.mimeType && e.mimeType != '' ?
+                                                        e.tokenMetaData.mimeType && e.tokenMetaData.mimeType != '' ?
                                                             <div>
                                                                 {
-                                                                    e.mimeType?.split('/')[0] == 'image' ?
-                                                                        <a href={`#/asset/${toHex(e.id)}`}>
-                                                                            <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`} />
+                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
+                                                                        <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                            <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                         </a>
                                                                         :
                                                                         undefined
                                                                 }
                                                                 {
-                                                                    e.mimeType?.split('/')[0] == 'text' ?
-                                                                        <div class='txt' style={{ maxWidth: '50vw' }}>
-                                                                            <a class='nostyle' href={`#/asset/${toHex(e.id)}`}>
+                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
+                                                                        <div className='txt' style={{ maxWidth: '50vw' }}>
+                                                                            <a className='nostyle' href={`#/asset/${toHex(e.id)}`}>
                                                                                 <ReactMarkdown>
                                                                                     {e.text}
                                                                                 </ReactMarkdown>
@@ -117,9 +118,9 @@ export class Feed extends Component {
                                                                         : undefined
                                                                 }
                                                                 {
-                                                                    e.mimeType?.split('/')[0] == 'video' ?
+                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'video' ?
                                                                         <div>
-                                                                            <a href={`#/asset/${toHex(e.id)}`}>
+                                                                            <a href={`#/asset/${toHex(e.tokenId)}`}>
                                                                                 <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
                                                                                     <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`}></source>
                                                                                 </video>
@@ -127,9 +128,9 @@ export class Feed extends Component {
                                                                         </div> : undefined
                                                                 }
                                                                 {
-                                                                    e.mimeType == 'application/pdf' ?
+                                                                    e.tokenMetaData.mimeType == 'application/pdf' ?
                                                                         <div>
-                                                                            <a href={`#/asset/${toHex(e.id)}`}>
+                                                                            <a href={`#/asset/${toHex(e.tokenId)}`}>
                                                                                 <Document
                                                                                     file={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`}
                                                                                 >
@@ -140,13 +141,13 @@ export class Feed extends Component {
                                                                         : undefined
                                                                 }
                                                                 {
-                                                                    e.mimeType?.split('/')[0] == 'audio' ?
+                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                                         <div>
-                                                                            <a href={`#/asset/${toHex(e.id)}`}>
-                                                                                <img src={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`} /><br />
+                                                                            <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                                <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
 
                                                                                 <audio controls style={{ width: '100%' }}>
-                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`} />
+                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                                                 </audio>
                                                                             </a>
                                                                         </div> : undefined
@@ -170,7 +171,7 @@ export class Feed extends Component {
                     <span style={{ marginLeft : '45%', position : 'absolute' }}>
                         {
                             this.state.offset != 0 ?
-                                <a class='style' onClick={this.previous} href='#/'>
+                                <a className='style' onClick={this.previous} href='#/'>
                                     &#60;&#60;&#60;
                                 </a>
                                 :
@@ -179,7 +180,7 @@ export class Feed extends Component {
                         &nbsp;
                         {
                             this.state.arr.length != 0 ?
-                                <a class='style' onClick={this.next} href='#/'>
+                                <a className='style' onClick={this.next} href='#/'>
                                     &#62;&#62;&#62;
                                 </a>
                                 :
