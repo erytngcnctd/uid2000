@@ -20,9 +20,9 @@ import ReactMarkdown from 'react-markdown'
 // const _ = require('lodash')
 // pagination https://thegraph.com/docs/en/developer/distributed-systems/
 
-function toHex(d) {
-    return (Number(d).toString(16)).slice(-2).toUpperCase()
-}
+// function toHex(d) {
+//     return (Number(d).toString(16)).slice(-2).toUpperCase()
+// }
 
 export class Token extends Component {
 
@@ -234,7 +234,6 @@ export class Token extends Component {
     }
 
     render() {
-
         return (
             <div style={{ marginTop: '20px' }}>
                 {
@@ -323,14 +322,14 @@ export class Token extends Component {
                                 <div style={{ display: 'inline' }}>
                                     <span>
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'info' })}>info</a>&nbsp;&nbsp;
-                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].tokenId) }} href='javascript:void(0);'>order book</a>&nbsp;&nbsp;
-                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'history' })} href='javascript:void(0);'>history</a>&nbsp;&nbsp;
+                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].tokenId) }} >order book</a>&nbsp;&nbsp;
+                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'history' })} >history</a>&nbsp;&nbsp;
                                         {
                                             // holder ?
                                         }
-                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'swap' })} href='javascript:void(0);'>swap</a>&nbsp;&nbsp;
-                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'burn' })} href='javascript:void(0);'>burn</a>&nbsp;&nbsp;
-                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'transfer' })} href='javascript:void(0);'>transfer</a>&nbsp;&nbsp;
+                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'swap' })} >swap</a>&nbsp;&nbsp;
+                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'burn' })} >burn</a>&nbsp;&nbsp;
+                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'transfer' })} >transfer</a>&nbsp;&nbsp;
                                     </span>
                                 </div>
                             }
@@ -442,7 +441,7 @@ export class Token extends Component {
                                     :
                                     undefined
                             }
-                            {   /* limit to creator or holder */ this.state.option == 'swap' ? <Swap id={this.state.token[0].id} /> : undefined}
+                            {   /* limit to creator or holder */ this.state.option == 'swap' ? <Swap tokenId={this.state.token[0].tokenId} /> : undefined}
                             {this.state.option == 'burn' ? <Burn id={this.state.token[0].tokenId} /> : undefined}
                             {this.state.option == 'transfer' ? <Transfer id={this.state.token[0].tokenId} /> : undefined}
                             <br />

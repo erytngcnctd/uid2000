@@ -16,11 +16,11 @@ import { Config } from './components/config'
 import { Swap } from './components/swap'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
-import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import { arbitrum, mainnet, polygon } from 'wagmi/chains'
+import { configureChains,createConfig, WagmiConfig } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 
 
-const chains = [arbitrum, mainnet, polygon]
+const chains = [polygon]
 const projectId = 'f3f6cde61fee13c3e6db2a0c47d0e7c2'
 
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
@@ -31,9 +31,7 @@ const wagmiConfig = createConfig({
 })
 const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
-
 function App() {
-
 /*   useEffect(() => {
     console.log(window.navigator.userAgent)
   }, []) */

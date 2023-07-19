@@ -8,7 +8,7 @@ export const SyncButton = () => {
   const { open } = useWeb3Modal();
   const { isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const { setAccount } = useContext(UngrundContext)
+  const { account, setAccount } = useContext(UngrundContext)
   const label = isConnected ? "unsync" : "sync";
 
     // add when unsync on config or assets change route
@@ -40,8 +40,14 @@ export const SyncButton = () => {
   }
 
   return (
-    <a style={{float: 'right', marginTop: '15px',textDecoration: 'underline', cursor: 'pointer' }} onClick={onClick} disabled={loading}>
-      {label}
-    </a>
+    <div style={{ display: 'inline' }}>
+      <a style={{ float: 'right', marginTop: '15px',textDecoration: 'underline', cursor: 'pointer' }} onClick={onClick} disabled={loading}>
+        {label}
+      </a>
+      { account && 
+        <span style={{ float: 'right', marginRight: '6px', marginTop: '15px' }}>
+          {account.slice(0, 7)}...{account.slice(account.length - 5, account.length)} /
+        </span> }
+    </div>
   );
 }

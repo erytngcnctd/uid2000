@@ -22,7 +22,7 @@ export const Transfer = ({ id }) => {
         <div><br />
             <input type="text" placeholder="to" name="to" onChange={(e) => setTo(e.target.value)} /><br />
             <input type="text" placeholder="amount" name="amount" onChange={(e) => setAmount(e.target.value)} /><br />                
-            <a class="button style" onClick={transfer} style={{ cursor : 'pointer' }}>transfer</a>
+            <a className="button style" onClick={transfer} style={{ cursor : 'pointer' }}>transfer</a>
         </div>
     )
 }
