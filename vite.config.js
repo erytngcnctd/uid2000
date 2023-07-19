@@ -11,7 +11,8 @@ export default defineConfig({
       react(),
     ],
     define: {
-      global:  {},
+      _global: ({}),
+      global: ({})
     },
     server: {
       host: true,
