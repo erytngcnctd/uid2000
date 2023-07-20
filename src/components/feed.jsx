@@ -122,7 +122,7 @@ export class Feed extends Component {
                                                                         <div>
                                                                             <a href={`#/asset/${toHex(e.tokenId)}`}>
                                                                                 <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
-                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation.split('//')[1]}`}></source>
+                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.animation_url?.split('//')[1]}`}></source>
                                                                                 </video>
                                                                             </a>
                                                                         </div> : undefined
@@ -132,7 +132,7 @@ export class Feed extends Component {
                                                                         <div>
                                                                             <a href={`#/asset/${toHex(e.tokenId)}`}>
                                                                                 <Document
-                                                                                    file={`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`}
+                                                                                    file={`https://cloudflare-ipfs.com/ipfs/${e.image?.split('//')[1]}`}
                                                                                 >
                                                                                     <Page pageNumber={1} />
                                                                                 </Document>
