@@ -1,149 +1,89 @@
-import axios from 'axios'
-import React, { Component } from 'react'
-import { createClient } from 'urql'
+import React, { useState, useEffect, useContext } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
-import { NFTStorage, File } from 'nft.storage'
-import { create } from 'ipfs-http-client'
+import { NFTStorage  } from 'nft.storage'
 import { Loading } from './load'
-import { mime } from 'mime'
+// import { mime } from 'mime'
 import { findHashtags } from 'find-hashtags'
-import { Contract } from 'web3-eth-contract'
-import { Web3 } from 'web3'
+import { useDebounce } from 'usehooks-ts'
+import {
+    useContractWrite, 
+    useWaitForTransaction,
+    usePrepareContractWrite, 
+} from 'wagmi'
+import { isError } from 'lodash'
 
-// import WebTorrent from 'webtorrent'
-
-// let mime = require('mime')
-// let findHashtags = require('find-hashtags')
-// let createTorrent = require('create-torrent')
-// let Contract = require('web3-eth-contract')
-// let Web3 = require('web3')
 let apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEY1NDdDNUIyMjMzMTc3MDZkZDdkODNEMjA4ODRkRDgxOTIxNTBiNEUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYyODE5NTc4NTc2MSwibmFtZSI6InRlc3QifQ.RED_BCrWtUgodnbLxdFV5lKxVTPruv1Cg-bcDL7jtrI'
-// let ls = require('local-storage')
+
 let client = new NFTStorage({ token: apiKey })
-// let wt = new WebTorrent()
 
-export class Mint extends Component {
+// error handling  ??
+export const Mint = () => {
+    const [title, setTitle] = useState(null)
+    const [description, setDescription] = useState(null)
+    const [amount, setAmount] = useState(1)
+    const [royalties, setRoyalties] = useState(10)
+    const [hashtags, setHashtags] = useState(null)
+    const [file, setFile] = useState(null)
+    const [display, setDisplay] = useState(null)
+    const [video, setVideo] = useState(null)
+    const [preview, setPreview] = useState(null) 
+    const { erc1155, minterAbi, loading, setLoading, setMsg } = useContext(UngrundContext)
+    const [uri, setUri] = useState('ipfs://')
 
-    static contextType = UngrundContext
+    const debouncedAmount = useDebounce(amount, 500)
+    const debouncedRoyalties = useDebounce(royalties, 500)
+    
+    const { config } = usePrepareContractWrite({
+        address: erc1155,
+        abi: minterAbi,
+        functionName: 'mint',
+        args: [parseInt(debouncedAmount), parseInt(debouncedRoyalties * 100), uri],
+        enabled: [Boolean(debouncedAmount), Boolean(debouncedRoyalties), Boolean(uri)]
+    })
+    const { data, write, isError } = useContractWrite(config)
+    const { isLoading, isSuccess } = useWaitForTransaction({
+        hash: data?.hash,
+    }) 
 
-    state = {
-        title: undefined,
-        description: undefined,
-        amount: undefined,
-        royalties: undefined,
-        hashtags: undefined,
-        file: undefined,
-        display: undefined,
-        result: undefined,
-        video: false
-    }
+    useEffect(() => {
+        isError && setMsg('error minting')
+        isSuccess && setMsg('minting succesful')
+    }, [isError, isSuccess])
+    
+    useEffect(() => {
+        uri !== 'ipfs://' &&  write?.()
+    }, [uri])
 
-    componentWillMount = async () => { }
-
-    handleChange = e => {
-        if (e.target.name == 'hashtags') {
-            this.setState({ [e.target.name]: findHashtags(e.target.value) })
-        } else {
-            this.setState({ [e.target.name]: e.target.value })
+    const onFileUpload = async e => {
+        if (e.target.files[0].type.split('/')[0] === 'video') setVideo(true)
+           setFile(e.target.files[0])
         }
-    }
+    
+    const onDisplayUpload = e => setDisplay(e.target.files[0])
+    const ipfs = async () => {
 
-    onFileUpload = e => {
-        this.setState({ file: e.target.files[0] })
-        console.log(e.target.files[0].type)
-        console.log(e.target.files[0])
-        console.log(e.target.files[0].type == undefined)
-        if (e.target.files[0].type.split('/')[0] != 'image' && e.target.files[0].type.split('/')[0] != 'text' && e.target.files[0].type != 'application/pdf') this.setState({ video: true })
-        console.log(this.state.video)
-    }
-
-    onDisplayUpload = e => this.setState({ display: e.target.files[0] })
-
-    encrypt = async () => {
-
-        // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt
-        // https://blog.secure-monkey.com/considerations-when-using-aes-gcm-for-encrypting-files/
-
-        console.log(await this.state.file.arrayBuffer())
-        console.log(localStorage.getItem('pk'))
-
-        let pk = window.crypto.subtle.importKey('jwk', localStorage.getItem('pk'), {   //these are the algorithm options
-            name: "RSA-OAEP",
-            hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-            false, // whether the key is extractable (i.e. can be used in exportKey)
-            ["encrypt"]).then(res => res)
-
-        let encrypted = window.crypto.subtle.encrypt('RSA-OAEP', await pk, Buffer.from(await this.state.file.arrayBuffer())).then(res => res)
-
-        console.log(await encrypted)
-        console.log(localStorage.getItem('sk'))
-
-        let sk = window.crypto.subtle.importKey('jwk', localStorage.getItem('sk'), {   // these are the algorithm options
-            name: "RSA-OAEP",
-            hash: { name: "SHA-256" }, // can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-            false, // whether the key is extractable (i.e. can be used in exportKey)
-            ["decrypt"]).then(res => res)
-
-        let decrypted = window.crypto.subtle.decrypt(
-            {
-                name: "RSA-OAEP",
-                //label: Uint8Array([...]) //optional
-            },
-            await sk, //from generateKey or importKey above
-            new Uint8Array(await encrypted) //ArrayBuffer of the data
-        )
-            .then(res => res)
-
-        console.log(await decrypted)
-        //console.log(Buffer.from((await new File([(await decrypted)], this.state.file.name, {type: this.state.file.type, lastModified: Date.now()}).arrayBuffer())))
-        //this.ipfsUpload(new File([(await decrypted)], this.state.file.name, { type: this.state.file.type, lastModified: Date.now() }))
-        //Uint8Array
-
-    }
-
-    ipfsUpload = async (file) => {
-        let infuraUrl = 'https://ipfs.infura.io:5001'
-        let ipfs = create(infuraUrl)
-        let hash = await ipfs.add(file)
-        console.log(hash)
-    }
-
-    mint = async () => {
-
-        console.log(this.state)
-        this.context.setLoading(true)
-        this.context.setMsg('preparing asset')
+        setLoading(true)
+        setMsg('preparing asset')
 
         let formData = new FormData()
-        formData.append('file', this.state.file)
+        formData.append('file', file)
 
-        let type = mime.getType(this.state.file)
-        console.log(type)
-
-        let artifactBuffer = Buffer.from(await this.state.file.arrayBuffer())
-        console.log(artifactBuffer.byteLength)
+        let artifactBuffer = Buffer.from(await file.arrayBuffer())
 
         let artifact = await client.storeBlob(new Blob([artifactBuffer]))
-        console.log(artifact)
-        artifactBuffer.name = this.state.title
-        artifactBuffer.comment = this.state.description
-        // console.log(await createTorrent([artifactBuffer], async (err, torrent) => {
-        //     if (!err) { console.log(torrent.magnetURI) }
-        //     console.log(await wt.add(torrent))
-        //     console.log(await wt.seed(torrent))
-        // }))
+        artifactBuffer.name = title
+        artifactBuffer.comment = description
+        
         let obj = {}
 
-        if (this.state.video) {
+        if (video) {
 
-            let displayBuffer = Buffer.from(await this.state.display.arrayBuffer())
+            let displayBuffer = Buffer.from(await display.arrayBuffer())
             let display = await client.storeBlob(new Blob([displayBuffer]))
 
             obj = {
-                name: this.state.title ? this.state.title : undefined,
-                description: this.state.description ? this.state.description : undefined,
+                name: title ? title : undefined,
+                description: description ? description : undefined,
                 animation_url: `ipfs://${artifact}`,
                 image: `ipfs://${display}`
             }
@@ -151,77 +91,109 @@ export class Mint extends Component {
         } else {
 
             obj = {
-                name: this.state.title ? this.state.title : undefined,
-                description: this.state.description ? this.state.description : undefined,
+                name: title ? title : undefined,
+                description: description ? description : undefined,
                 image: `ipfs://${artifact}`
             }
 
         }
 
-        if (this.state.hashtags?.length > 0) obj.attributes = this.state.hashtags.map(e => { return { 'value': e } })
-        if (this.state.file.type != undefined) obj.mimeType = this.state.file.type
-
+        if (hashtags?.length > 0) obj.attributes = hashtags.map(e => { return { 'value': e } })
+        if (file.type != undefined) {
+            obj.mimeType = file.type
+        }
         let str = JSON.stringify(obj)
 
         let nft = await client.storeBlob(new Blob([str], {
             type: "application/json"
         }))
-
+        setUri(uri => uri+nft)
         console.log('metadata', obj, 'nft', nft)
-
-        // webtorrent
-
-        Contract.setProvider(Web3.givenProvider);
-
-        let contract = new Contract(this.context.minterAbi, this.context.erc1155)
-        this.context.setMsg('awaiting op confirmation')
-        try {
-            let result = await contract.methods.mint(
-                this.state.amount,
-                this.state.royalties * 100,
-                `ipfs://${nft}`
-            ).send({ from: localStorage.getItem('account') })
-            this.setState({ result: result })
-            this.context.setLoading(false)
-        } catch (err) {
-            this.context.setLoading(false)
-        }
     }
 
-    render() {
-        return (
-            <div>
-                {
-                    localStorage.getItem('sync') ?
-                        this.context.loading ?
-                            <Loading />
-                            :
-                            <div><br/>
+    return (
+        loading ? <Loading /> :
+        <div>  
+            {
+                localStorage.getItem('sync') ?
+                        <div><br/>
+                            <div>
+                                <input type="text" placeholder="title" name="title" onChange={(e)=>setTitle(e.target.value)} /><br />
+                                <input type="text" placeholder="description" name="description" onChange={(e)=>setDescription(e.target.value)} /><br />
+                                {/* <input type="text" placeholder="#hashtags" name="hashtags" onChange={(e)=>setHashTags(findHashtags(e.target.value))} /><br /> */}
+                                <input type="text" placeholder="amount" name="amount" onChange={(e)=>setAmount(e.target.value)} /><br />
+                                <input type="text" placeholder="royalties" name="royalties" onChange={(e)=>setRoyalties(e.target.value)} /><br />
+                                <br/>
+                                <input type="file" name="file" onChange={onFileUpload} />
+                                {
+                                    video &&
+                                        <div>
+                                            <input type="file" name="display" onChange={onDisplayUpload} />
+                                        </div>
+                                }
+                                <br/><br/>
                                 <div>
-                                    <input type="text" placeholder="title" name="title" onChange={this.handleChange} /><br />
-                                    <input type="text" placeholder="description" name="description" onChange={this.handleChange} /><br />
-                                    {/* <input type="text" placeholder="#hashtags" name="hashtags" onChange={this.handleChange} /><br /> */}
-                                    <input type="text" placeholder="amount" name="amount" onChange={this.handleChange} /><br />
-                                    <input type="text" placeholder="royalties" name="royalties" onChange={this.handleChange} /><br />
-                                    <input type="file" name="file" onChange={this.onFileUpload} />
-                                    {
-                                        this.state.video ?
-                                            <div>
-                                                <input type="file" name="display" onChange={this.onDisplayUpload} />
-                                            </div>
-                                            : undefined
-                                    }
-                                    <div>
-                                        <a className='style button' style={{ cursor: 'pointer' }} onClick={this.mint}>mint</a>
-                                    </div>
+                                    <a className='style button' style={{ cursor: 'pointer' }} onClick={() => {file && !preview ? setPreview(true) : setPreview(false)}}>{!preview ? 'preview' : 'X'}</a>
                                 </div>
                             </div>
-                        :
-                        <div>
-                            You must be synced.
                         </div>
+                    :
+                    <div>
+                        You must be synced.
+                    </div>
+            }
+        { preview && 
+            <div><br/>
+                { file.type.split('/')[0] === 'image' ? 
+                    <div> 
+                        <img variant="top" src={URL.createObjectURL(file)} />
+                    </div>
+                : file.type.split('/')[0] === 'text' ?
+                    <div className='txt' style={{ maxWidth: '50vw' }}>
+                        <ReactMarkdown>
+                            {text}
+                        </ReactMarkdown>
+                    </div>
+                : file.type.split('/')[0] === 'video' ?
+                    <div>
+                        <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
+                            <source src={URL.createObjectURL(file)}></source>
+                        </video>
+                    </div>
+                : file.type.split('/')[0] === 'application/pdf' ?
+                    <div>
+                        <Document
+                            file = {URL.createObjectURL(file)}
+                        >
+                            <Page pageNumber={1} />
+                        </Document>
+                    </div>
+                : file.type.split('/')[0] === 'audio' ?
+                    <div>
+                        <img src={URL.createObjectURL(display)} /><br />
+
+                        <audio controls style={{ width: '100%' }}>
+                            <source src={URL.createObjectURL(file)} />
+                        </audio>
+                    </div>
+                    : undefined
                 }
-            </div>
-        )
-    }
+                <br/>
+                <div>{title}</div>
+                <div>{description}</div>
+                <div>{amount} editions</div>
+                <div>{royalties}% royalties</div>
+                <br/>
+                <div>
+                    <a className='style button' style={{ cursor: 'pointer' }} onClick={async () => {await ipfs();setMsg('minting asset')}}>mint</a>
+                    {
+                            isLoading && setMsg('minting asset')
+                          
+                    }
+                </div>
+            </div>        
+        }
+    </div>
+    )
 }
+

@@ -12,7 +12,7 @@ function toHex(d) {
 }
 
 const assets = async (address) => {
-    const APIURL = "https://api.studio.thegraph.com/query/49421/ungrund_test/v0.0.44"
+    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.56"
     // available_not : "0"
     const tokensQuery = `query
     {
@@ -42,7 +42,7 @@ const assets = async (address) => {
 
 const collection = async (address, creations) => {
 
-    const APIURL = "https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44"
+    const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.56/v0.0.5"
 
     const from = `query
     {

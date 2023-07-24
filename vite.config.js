@@ -24,7 +24,7 @@ export default defineConfig({
       rollupOptions: {
         plugins: [rollupNodePolyFill({
             globals: {
-                Buffer: true, 
+                buffer: true, 
                 global: true,
                 process: true,
               },

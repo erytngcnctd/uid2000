@@ -1,27 +1,48 @@
 import { useContext, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
-import { Contract } from 'web3-eth-contract'
-import { Web3 } from 'web3'
+import { useDebounce } from 'usehooks-ts'
+import { Loading } from './load'
+import {
+    useContractWrite, 
+    useWaitForTransaction,
+    usePrepareContractWrite, 
+} from 'wagmi'
 
-// var Contract = require('web3-eth-contract')
-// const Web3 = require('web3')
 
 export const Burn = ({ id }) => {
 
-    const { erc1155Abi, erc1155, dummy, account } = useContext(UngrundContext)
-    const [amount, setAmount] = useState(undefined)
+    const { erc1155Abi, erc1155, dummy, account, setMsg } = useContext(UngrundContext)
+    const [amount, setAmount] = useState(1)
+    const debouncedAmount = useDebounce(amount, 500)
 
-    const transfer = async () => {
-        let contract = new Contract(erc1155Abi, erc1155)
-        console.log()
-        let res = await contract.methods.safeTransferFrom(account, dummy, id, amount, '0x0').send({ from : account })
-        console.log(res)
+    const { config } = usePrepareContractWrite({
+        address: erc1155,
+        abi: erc1155Abi,
+        functionName: 'safeTransferFrom',
+        args: [account, dummy, parseInt(id), parseInt(debouncedAmount), '0x0'],
+        enabled: [Boolean(account), Boolean(dummy), Boolean(id), Boolean(debouncedAmount), Boolean('0x0')]
+    })
+    const { data, write, isError } = useContractWrite(config)
+    const { isLoading, isSuccess } = useWaitForTransaction({
+        hash: data?.hash,
+    }) 
+    // redirect
+    const transfer = async() => {
+        write()
     }
 
     return (
+        isLoading ? <Loading /> :
         <div><br />
             <input type="text" placeholder="amount" name="amount" onChange={(e) => setAmount(e.target.value)} /><br />                
-            <a class="button style" onClick={transfer} style={{ cursor : 'pointer' }}>burn</a>
+            <a className="button style" onClick={() => transfer()} style={{ cursor : 'pointer' }}>burn</a>
+            <div>
+            { isLoading ? 'burning asset' 
+            : isError ? 'error burning'
+            : isSuccess ? 'asset burned' 
+            : undefined
+            }
+            </div>
         </div>
     )
 }

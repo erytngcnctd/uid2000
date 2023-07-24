@@ -24,6 +24,8 @@ import ReactMarkdown from 'react-markdown'
 //     return (Number(d).toString(16)).slice(-2).toUpperCase()
 // }
 
+const APIURL = 'https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.56'
+
 export class Token extends Component {
 
     static contextType = UngrundContext
@@ -39,8 +41,6 @@ export class Token extends Component {
     }
 
     metadata = async (id) => {
-
-        const APIURL = "https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44"
 
         const tokensQuery = `
         query 
@@ -88,8 +88,6 @@ export class Token extends Component {
     }
 
     listings = async (tokenId) => {
-
-        let endpoint = `https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44`
         let swapsQuery = `
             {
                 swaps (where : { tokenId : ${tokenId} }) {
@@ -107,7 +105,7 @@ export class Token extends Component {
             `
 
         const client = createClient({
-            url: endpoint,
+            url: APIURL,
             exchanges: [cacheExchange, fetchExchange]
         })
 
@@ -199,8 +197,7 @@ export class Token extends Component {
 
     holders = async (tokenId) => {
 
-        const APIURL = "https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44"
-
+        const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.56"
         const transfers = `query
         {
             transfers(where: { tokenId : "${tokenId}" }) {

@@ -7,8 +7,8 @@ export const Loading = () => {
 
     return (
         <div>
-            { msg ? <div class="center">{msg}</div> : undefined }
-            <hr class="line" />
+            { msg ? <div className="center">{msg}</div> : undefined }
+            <hr className="line" />
         </div>
     )
 }

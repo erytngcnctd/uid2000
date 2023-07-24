@@ -26,7 +26,7 @@ export const Search = () => {
             //setSubjkts([])
             //setAssets([])
 
-            let endpoint = `https://api.studio.thegraph.com/proxy/49421/ungrund_test/v0.0.44`
+            let endpoint = `https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.56`
                 //available_not: "0"
             let description = `{
                 uris (orderBy: timestamp,  orderDirection: desc, where : { description_contains_nocase : "${window.location.hash.split('/')[2]}", tokenMetaData_: {mimeType_not: ""}}){
