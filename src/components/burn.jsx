@@ -22,26 +22,28 @@ export const Burn = ({ id }) => {
         args: [account, dummy, parseInt(id), parseInt(debouncedAmount), '0x0'],
         enabled: [Boolean(account), Boolean(dummy), Boolean(id), Boolean(debouncedAmount), Boolean('0x0')]
     })
+
     const { data, write, isError } = useContractWrite(config)
     const { isLoading, isSuccess } = useWaitForTransaction({
         hash: data?.hash,
     }) 
-    // redirect
+
+    // loading bar?
     const transfer = async() => {
         write()
     }
 
     return (
-        isLoading ? <Loading /> :
+        // isLoading ? <Loading /> :
         <div><br />
             <input type="text" placeholder="amount" name="amount" onChange={(e) => setAmount(e.target.value)} /><br />                
             <a className="button style" onClick={() => transfer()} style={{ cursor : 'pointer' }}>burn</a>
             <div>
-            { isLoading ? 'burning asset' 
-            : isError ? 'error burning'
-            : isSuccess ? 'asset burned' 
-            : undefined
-            }
+                { isLoading ? 'burning asset' 
+                : isError ? 'error burning'
+                : isSuccess ? 'asset burned' 
+                : undefined
+                }
             </div>
         </div>
     )
