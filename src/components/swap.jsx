@@ -26,6 +26,7 @@ const getApproval = () => {
     })
     return data
 }
+
 const Approve = () => {
     const { v1, erc1155Abi, erc1155 } = useContext(UngrundContext)
     const { config } = usePrepareContractWrite({

@@ -24,7 +24,7 @@ import ReactMarkdown from 'react-markdown'
 //     return (Number(d).toString(16)).slice(-2).toUpperCase()
 // }
 
-const APIURL = 'https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.56'
+const APIURL = 'https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.61'
 
 export class Token extends Component {
 
@@ -36,6 +36,7 @@ export class Token extends Component {
         loading: true,
         royalties: undefined,
         market: undefined,
+        editions: undefined,
         orders: undefined,
         flag: false
     }
@@ -47,6 +48,7 @@ export class Token extends Component {
           {
             uris (where : { tokenId: ${id} }){
                 tokenId
+                editions
                 tokenMetaData {
                   mimeType
                   image
@@ -76,19 +78,20 @@ export class Token extends Component {
         console.log(data)
         let tks = _.filter(_.filter(data.data.transfers, { from: "0x0000000000000000000000000000000000000000" }), { tokenId: String(id) })
         let burn = _.filter(_.filter(data.data.transfers, { to: this.context.dummy }), { tokenId: String(id) })
-        console.log(data.data.transfers)
+        console.log(data.data.uris)
         console.log(burn)
         burn.map(e => e.amount = Number(e.amount))
         //console.log(tks.map(e => e._value = Number(e._value)))
         console.log(tks)
-        this.setState({ editions: _.sumBy(parseInt(tks), 'value') - _.sumBy(parseInt(burn), 'value') })
+        // this.setState({ editions: _.sumBy(parseInt(tks), 'value') - _.sumBy(parseInt(burn), 'value') })
+        this.setState({ editions: data.data.uris[0].editions })
         console.log(this.state)
         return data.data
 
     }
 
     listings = async (tokenId) => {
-        let swapsQuery = `
+        const swapsQuery = `
             {
                 swaps (where : { tokenId : ${tokenId} }) {
                     id
@@ -110,9 +113,9 @@ export class Token extends Component {
         })
 
         const data = await client.query(swapsQuery).toPromise()
-        console.log(data.data)
+        console.log(data)
 
-        return data.data || []
+        return data.data.swaps || []
 
     }
 
@@ -120,16 +123,15 @@ export class Token extends Component {
     componentWillMount = async () => {
         // Contract.setProvider(web3);
         let tokenId = parseInt(window.location.hash.split('/')[2], 16)
+        // tokenId=150
         console.log(tokenId)
         // treat metadata/display options
 
         let metadata = await this.metadata(tokenId)
-        console.log(metadata)
         let aux = metadata.uris.map(async e => {
             if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
             return e
         })
-
         let transfers = metadata.transfers
         transfers = transfers.filter(e => e.from != this.context.v1.toLowerCase() && e.to != this.context.v1.toLowerCase() && e.from != '0x0000000000000000000000000000000000000000')
         console.log(transfers)
@@ -138,8 +140,8 @@ export class Token extends Component {
         //transfers.map(e => e.timestamp = e._timestamp)
         //console.log(transfers)
         let listings = await this.listings(tokenId) 
+        console.log('listings', listings)
         listings.map(e => e.amount = Number(e.amount))
-
         let op2 = _.filter(listings, { op: "2" })
         let op1 = _.filter(listings, { op: "1" })
         let op0 = _.filter(listings, { op: "0" })
@@ -167,7 +169,6 @@ export class Token extends Component {
 
         // let erc1155 = new Contract(this.context.erc1155Abi, this.context.erc1155)
         // this.setState({ royalties: await erc1155.methods.royalties(tokenId).call() })
-
     }
 
     // collect = async (swapId, value) => {
@@ -197,7 +198,7 @@ export class Token extends Component {
 
     holders = async (tokenId) => {
 
-        const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.56"
+        const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.61"
         const transfers = `query
         {
             transfers(where: { tokenId : "${tokenId}" }) {
@@ -283,7 +284,7 @@ export class Token extends Component {
                                         </div> : undefined
                                 }
                                 <br />
-                                {this.state.market == 0 ? <span>X</span> : <span>{this.state.market}</span>}/{this.state.token[0].available} ed.<br />
+                                {this.state.market == 0 ? <span>X</span> : <span>{this.state.market}</span>}/{this.state.editions} ed.<br />
                                 <a className='style' href={`#/${this.state.token[0].from}`}>{this.state.token[0].from.slice(0, 7)}...{this.state.token[0].from.slice(36, 42)}</a><br /><br />
                             </div>
 
@@ -369,7 +370,7 @@ export class Token extends Component {
                                                                     <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
                                                                     <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
                                                                     <td>{e.amount} ed.</td>
-                                                                    <td>{parseFloat(e.value / 1000000000000000000)} MATIC</td>
+                                                                    <td>{parseFloat(e.value / 1000000000000000000)} MATIC</td> 
                                                                 </tr>
                                                             </div>
                                                         )

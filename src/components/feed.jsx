@@ -11,7 +11,7 @@ function toHex(d) {
 }
   // uris (first : 8, skip : ${offset}, orderBy: timestamp,  orderDirection: desc, where : { available_not : "0", mimeType_not : "" }) {
 const metadata = async (offset) => {
-    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.56"
+    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.61"
     const tokensQuery = `
     query 
       {
