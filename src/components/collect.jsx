@@ -1,25 +1,39 @@
-import { useAccount, useContract } from 'wagmi'
+import React, { useContext } from 'react'
+import {
+        useWaitForTransaction,
+        useContractWrite, 
+        usePrepareContractWrite, 
+    } from 'wagmi'
+import { parseEther, parseGwei} from 'viem'
+import { UngrundContext } from '../context/UngrundContext'
+import { polygon } from 'wagmi/chains'
 
 
+export const Collect = ({ swapId, value }) => {
+    const { v1, swapAbi, account } = useContext(UngrundContext)
+    const amount = 1
 
-export const Collect = async (swapId, value) => {
-    const { v1, erc1155Abi, erc1155, account } = useContext(UngrundContext)
-    
     const { config } = usePrepareContractWrite({
         address: v1,
         abi: swapAbi,
+        chainId: polygon.id,
         functionName: 'collect',
-        args: [parseInt(swapId), parseInt(value)],
+        stateMutability: 'payable',
+        value: parseEther(value.toString()),
+        args: [parseInt(swapId), parseInt(amount)],
+        enabled: [Boolean(swapId), Boolean(amount)]
     })
 
-    const { data, write } = useContractWrite(config)
+    const { data, write, isError } = useContractWrite(config)
+
     const { isLoading, isSuccess } = useWaitForTransaction({
         hash: data?.hash,
     }) 
 
+   
     return (
-        <div>
-        <a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a><br /><br />
-        </div>
+        <>
+            <a className='button style' style={{ cursor: 'pointer' }} onClick={() => write?.()}>collect for {value} MATIC</a>
+        </>
     )
-}
+}   

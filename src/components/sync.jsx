@@ -1,11 +1,12 @@
 import { useWeb3Modal } from "@web3modal/react";
 import { useState, useEffect, useContext } from "react";
 import { useAccount, useDisconnect } from "wagmi";
+import { polygon } from 'wagmi/chains'
 import { UngrundContext } from '../context/UngrundContext'
 
 export const SyncButton = () => {
   const [loading, setLoading] = useState(false);
-  const { open } = useWeb3Modal();
+  const { open, setDefaultChain } = useWeb3Modal();
   const { isConnected } = useAccount();
   const { disconnect } = useDisconnect();
   const { account, setAccount } = useContext(UngrundContext)
@@ -14,6 +15,7 @@ export const SyncButton = () => {
     // add when unsync on config or assets change route
   useEffect(() => {
    if (isConnected) {
+
     let account = JSON.parse(localStorage.getItem("wagmi.store")).state.data.account
     setAccount(account, true)
     localStorage.setItem("account", account )
@@ -24,9 +26,10 @@ export const SyncButton = () => {
     localStorage.removeItem("sync", false)
    }
   }, [isConnected])
-  
+
   const onOpen = async() => {
     setLoading(true);
+    setDefaultChain(polygon)
     await open();
     setLoading(false);
   }

@@ -6,6 +6,7 @@ import { Swap } from './swap'
 import { Burn } from './burn'
 import { Transfer } from './transfer'
 import { Royalties } from './royalties'
+import { Collect } from './collect'
 import { _ } from 'lodash'
 import ReactMarkdown from 'react-markdown'
 
@@ -99,8 +100,6 @@ export class Token extends Component {
         })
 
         const data = await client.query(swapsQuery).toPromise()
-        console.log(data)
-
         return data.data.swaps || []
 
     }
@@ -109,8 +108,7 @@ export class Token extends Component {
     componentWillMount = async () => {
 
         let tokenId = parseInt(window.location.hash.split('/')[2], 16)
-        tokenId=150
-
+        // tokenId=150
         // treat metadata/display options
 
         let metadata = await this.metadata(tokenId)
@@ -201,16 +199,18 @@ export class Token extends Component {
 
 
         let res = (await client.query(transfers).toPromise()).data.transfers
-        console.log(res)
+        console.log('res', res)
+        return res
     }
 
     orderBook = async (tokenId) => {
         let res = await this.listings(parseInt(window.location.hash.split('/')[2], 16))
+        // let res = await this.listings(150)
         // console.log(res)
         res = res.map(e => e.amount = Number(e.amount))
         res = _.filter(res, { op: "0" })
         let available = _.sumBy(res, 'amount')
-        this.holders(parseInt(window.location.hash.split('/')[2], 16))
+        // this.holders(parseInt(window.location.hash.split('/')[2], 16))
         //console.log(available)
         //console.log(res)
         this.setState({ active: res, collectors: [] })
@@ -279,17 +279,17 @@ export class Token extends Component {
                                         {
 
                                             this.state.orders.map((e, i) => {
-
                                                 // smaller e.value
                                                 if (i == 0) {
                                                     return (
                                                         <div key={i}>
-                                                            <a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a><br /><br />
-                                                            {/*                                                             
+                                                            <Collect swapId={e.swapId} value={e.value / 1000000000000000000}/>
+                                                            <br/><br/>
+                                                            {/* <a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a><br /><br />
+                                                                                                                        
                                                             {
-                                                                e.issuer == this.context.account?.toLowerCase() ? <a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a> : undefined
-                                                            } 
-                                                            */}
+                                                                 e.issuer == this.context.account?.toLowerCase() ? <a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a> : undefined
+                                                            }  */}
                                                         </div>
                                                     )
                                                 }
@@ -330,19 +330,22 @@ export class Token extends Component {
                                     <>
                                         <br/><br/>
                                         <table style={{ display: 'block' }}>
-                                            {/* <br /> */}
-                                            {this.state.orders.map(e => {
-                                                return (
-                                                    <tr>
-                                                        <td>{e.amount} ed.</td>
-                                                        <td><a className='style' href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
-                                                        <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a></td>
-                                                        {
-                                                            e.issuer == this.context.account?.toLowerCase() ? <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a></td> : undefined
-                                                        }
-                                                    </tr>
-                                                )
-                                            })}
+                                            <tbody>
+                                                {/* <br /> */}
+                                                {this.state.orders.map((e,i) => {
+                                                    return (
+                                                        <tr key={i}>
+                                                            <td>{e.amount} ed.</td>
+                                                            <td><a className='style' href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
+                                                            {/* <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a></td> */}
+                                                            <td><Collect swapId={e.swapId} value={e.value / 1000000000000000000 }/></td>
+                                                            {
+                                                                e.issuer == this.context.account?.toLowerCase() ? <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a></td> : undefined
+                                                            }
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
                                         </table>
                                     </>
                                     :
