@@ -5,20 +5,9 @@ import { UngrundContext } from '../context/UngrundContext'
 import { Swap } from './swap'
 import { Burn } from './burn'
 import { Transfer } from './transfer'
+import { Royalties } from './royalties'
 import { _ } from 'lodash'
 import ReactMarkdown from 'react-markdown'
-
-// import  Contract  from 'web3-eth-contract'
-// import { Web3 } from 'web3'
-
-// var web3 = new Web3(Web3.givenProvider);
-// console.log(web3)
-
-// var Contract = require('web3-eth-contract')
-// const axios = require('axios')
-// const Web3 = require('web3')
-// const _ = require('lodash')
-// pagination https://thegraph.com/docs/en/developer/distributed-systems/
 
 // function toHex(d) {
 //     return (Number(d).toString(16)).slice(-2).toUpperCase()
@@ -34,7 +23,7 @@ export class Token extends Component {
         token: undefined,
         listings: undefined,
         loading: true,
-        royalties: undefined,
+        // royalties: undefined,
         market: undefined,
         editions: undefined,
         orders: undefined,
@@ -75,17 +64,13 @@ export class Token extends Component {
     });
 
         const data = await client.query(tokensQuery).toPromise();
-        console.log(data)
         let tks = _.filter(_.filter(data.data.transfers, { from: "0x0000000000000000000000000000000000000000" }), { tokenId: String(id) })
         let burn = _.filter(_.filter(data.data.transfers, { to: this.context.dummy }), { tokenId: String(id) })
-        console.log(data.data.uris)
-        console.log(burn)
         burn.map(e => e.amount = Number(e.amount))
         //console.log(tks.map(e => e._value = Number(e._value)))
         console.log(tks)
         // this.setState({ editions: _.sumBy(parseInt(tks), 'value') - _.sumBy(parseInt(burn), 'value') })
         this.setState({ editions: data.data.uris[0].editions })
-        console.log(this.state)
         return data.data
 
     }
@@ -99,6 +84,7 @@ export class Token extends Component {
                     tokenId
                     swapId
                     timestamp
+                    transactionHash
                     amount
                     value
                     op
@@ -121,10 +107,10 @@ export class Token extends Component {
 
 
     componentWillMount = async () => {
-        // Contract.setProvider(web3);
+
         let tokenId = parseInt(window.location.hash.split('/')[2], 16)
-        // tokenId=150
-        console.log(tokenId)
+        tokenId=150
+
         // treat metadata/display options
 
         let metadata = await this.metadata(tokenId)
@@ -134,13 +120,12 @@ export class Token extends Component {
         })
         let transfers = metadata.transfers
         transfers = transfers.filter(e => e.from != this.context.v1.toLowerCase() && e.to != this.context.v1.toLowerCase() && e.from != '0x0000000000000000000000000000000000000000')
-        console.log(transfers)
         //let transfers = (_.filter(metadata.tokenTransfers, { _from: "0x0000000000000000000000000000000000000000" }))
         //transfers = [...transfers, ...(_.filter(metadata.tokenTransfers, { _to: this.context.dummy }))]
         //transfers.map(e => e.timestamp = e._timestamp)
         //console.log(transfers)
         let listings = await this.listings(tokenId) 
-        console.log('listings', listings)
+        // console.log('listings', listings)
         listings.map(e => e.amount = Number(e.amount))
         let op2 = _.filter(listings, { op: "2" })
         let op1 = _.filter(listings, { op: "1" })
@@ -159,7 +144,7 @@ export class Token extends Component {
         let history = await this.listings(tokenId)
         history.forEach(i => op0.forEach(j => { if (i.swapId == j.swapId) i.seller = j.issuer }))
         history = _.orderBy([...history, ...transfers], ['timestamp'], ['desc'])
-        console.log(history)
+        // console.log(history)
         
         Promise.all(aux).then(async values => {
             console.log('metadata', values)
@@ -221,7 +206,7 @@ export class Token extends Component {
 
     orderBook = async (tokenId) => {
         let res = await this.listings(parseInt(window.location.hash.split('/')[2], 16))
-        console.log(res)
+        // console.log(res)
         res = res.map(e => e.amount = Number(e.amount))
         res = _.filter(res, { op: "0" })
         let available = _.sumBy(res, 'amount')
@@ -298,7 +283,7 @@ export class Token extends Component {
                                                 // smaller e.value
                                                 if (i == 0) {
                                                     return (
-                                                        <div>
+                                                        <div key={i}>
                                                             <a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a><br /><br />
                                                             {/*                                                             
                                                             {
@@ -333,112 +318,112 @@ export class Token extends Component {
                             }
                             {
                                 this.state.option === undefined || this.state.option === 'info' ? <div><br />
-                                    {this.state.token[0].title ? <span>{this.state.token[0].title}<br /></span> : undefined}
-                                    {this.state.token[0].description ? <span>{this.state.token[0].description}<br /></span> : undefined}
+                                    {this.state.token[0].tokenMetaData.name ? <span>{this.state.token[0].tokenMetaData.name}<br /></span> : undefined}
+                                    {this.state.token[0].tokenMetaData.description ? <span>{this.state.token[0].tokenMetaData.description}<br /></span> : undefined}
+                                    {this.state.token[0].tokenMetaData.mimeType ? <span>{this.state.token[0].tokenMetaData.mimeType}<br /></span> : undefined}
+                                    <Royalties tokenId={this.state.token[0].tokenId} />
                                     {/* {this.state.token[0].attributes ? <span><br />{this.state.token[0].attributes.split(' ').map(e => <span><span className='tag'>{e}</span> </span>)}</span> : undefined } */}
                                 </div> : undefined
                             }
                             {
                                 this.state.option === 'book' ?
-                                    <table style={{ display: 'block' }}>
-                                        <br />
-                                        {this.state.orders.map(e => {
-                                            return (
-                                                <tr>
-                                                    <td>{e.amount} ed.</td>
-                                                    <td><a className='style' href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a><br /></td>
-                                                    <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a></td>
-                                                    {
-                                                        e.issuer == this.context.account?.toLowerCase() ? <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a></td> : undefined
-                                                    }
-                                                </tr>
-                                            )
-                                        })}
-                                    </table> : undefined
+                                    <>
+                                        <br/><br/>
+                                        <table style={{ display: 'block' }}>
+                                            {/* <br /> */}
+                                            {this.state.orders.map(e => {
+                                                return (
+                                                    <tr>
+                                                        <td>{e.amount} ed.</td>
+                                                        <td><a className='style' href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
+                                                        <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a></td>
+                                                        {
+                                                            e.issuer == this.context.account?.toLowerCase() ? <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a></td> : undefined
+                                                        }
+                                                    </tr>
+                                                )
+                                            })}
+                                        </table>
+                                    </>
+                                    :
+                                    undefined
                             }
                             {
                                 this.state.option === 'history' ?
-                                    <table style={{ display: 'block' }}><br />
-                                        <div>
+                                    <>
+                                    <br/><br/>
+                                    <table style={{ display: 'block' }}>
+                                            <tbody>
+
                                             {
-                                                this.state.history.map(e => {
+                                                this.state.history.map((e,i) => {
                                                     if (e.op == 0) {
                                                         return (
-                                                            <div style={{ width: '100%' }}>
-                                                                <tr>
+                                                                <tr key={i} style={{ width: '100%' }}>
                                                                     <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>swap</a></td>
                                                                     <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
                                                                     <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
                                                                     <td>{e.amount} ed.</td>
                                                                     <td>{parseFloat(e.value / 1000000000000000000)} MATIC</td> 
                                                                 </tr>
-                                                            </div>
                                                         )
                                                     }
                                                     if (e.op == 1) {
                                                         return (
-                                                            <div>
-                                                                <tr>
-                                                                    <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>trade</a></td>
-                                                                    <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
-                                                                    <td><a className="style" href={`#/${e.seller}`}>{e.seller.slice(0, 7)}...{e.seller.slice(36, 42)}</a></td>
-                                                                    <td>{e.amount} ed.</td>
-                                                                    <td>{parseFloat(e.value / 1000000000000000000)} MATIC</td>
-                                                                    <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
-                                                                </tr>
-                                                            </div>
+                                                            <tr key={i}>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>trade</a></td>
+                                                                <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
+                                                                <td><a className="style" href={`#/${e.seller}`}>{e.seller.slice(0, 7)}...{e.seller.slice(36, 42)}</a></td>
+                                                                <td>{e.amount} ed.</td>
+                                                                <td>{parseFloat(e.value / 1000000000000000000)} MATIC</td>
+                                                                <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
+                                                            </tr>
                                                         )
                                                     }
                                                     if (e.op == 2) {
                                                         return (
-                                                            <div>
-                                                                <tr>
-                                                                    <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>cancel</a></td>
-                                                                    <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
-                                                                    <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
-                                                                    <td>{e.amount} ed.</td>
-                                                                </tr>
-                                                            </div>
+                                                            <tr key={i}>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>cancel</a></td>
+                                                                <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
+                                                                <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
+                                                                <td>{e.amount} ed.</td>
+                                                            </tr>
                                                         )
                                                     }
 
                                                     if (e.to == this.context.dummy.toLowerCase()) {
                                                         return (
-                                                            <div>
-                                                                <tr>
-                                                                    <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>burn</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td>
-                                                                </tr>
-                                                            </div>
+                                                            <tr key={i}>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>burn</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td>
+                                                            </tr>
                                                         )
                                                     }
                                                     if (e.to != this.context.dummy.toLowerCase()) {
                                                         return (
-                                                            <div>
-                                                                <tr>
-                                                                    <td>
-                                                                        <a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>transfer</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td><td><a className="style" href={`#/${e.to}`}>{e.to.slice(0, 7)}...{e.to.slice(36, 42)}</a></td>
-                                                                </tr>
-                                                            </div>
+                                                            <tr key={i}>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>transfer</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td><td><a className="style" href={`#/${e.to}`}>{e.to.slice(0, 7)}...{e.to.slice(36, 42)}</a></td>
+                                                            </tr>
                                                         )
                                                     }
-                                                })
-                                            }
-                                        </div>
+                                                }
+                                            )}
                                         {
-                                            this.state.token.length != 0 ?
-                                                <div>
+                                            this.state.token.length != 0  ?
                                                     <tr>
-                                                        <td><a className="style" href={`https://polygonscan.com/tx/${this.state.token[0].hash}`}>minted</a></td>
+                                                        <td><a className="style" href={`https://polygonscan.com/tx/${this.state.token[0].transactionHash}`}>minted</a></td>
                                                         <td>{new Date(parseInt(this.state.token[0].timestamp) * 1000).toUTCString()}</td>
-                                                        <td>{this.state.royalties / 100}% royalties</td>
+                                                        <td><Royalties tokenId={this.state.token[0].tokenId} /></td>
+                                                        {/* <td>     <Royalties tokenId={this.state.token[0].tokenId} /></td> */}
                                                     </tr>
-                                                </div>
                                                 : undefined
-                                        }
+                                            }
+                                    </tbody>
                                     </table>
+                                    </>
                                     :
                                     undefined
                             }
+                            
                             {   /* limit to creator or holder */ this.state.option == 'swap' ? <Swap tokenId={this.state.token[0].tokenId} /> : undefined}
                             {this.state.option == 'burn' ? <Burn id={this.state.token[0].tokenId} /> : undefined}
                             {this.state.option == 'transfer' ? <Transfer id={this.state.token[0].tokenId} /> : undefined}
@@ -448,6 +433,7 @@ export class Token extends Component {
                         :
                         undefined
                 }
+                <br/>
             </div>
         )
     }

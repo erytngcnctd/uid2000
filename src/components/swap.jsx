@@ -1,5 +1,4 @@
 import React, { Component, useContext, useState } from 'react'
-// import { createClient, useSubscription } from 'urql'
 import { UngrundContext } from '../context/UngrundContext'
 import {
     useContractRead,
@@ -10,12 +9,7 @@ import {
 import { parseEther } from 'viem'
 import { useDebounce } from 'usehooks-ts'
 // import { Loading } from './load'
-// import { set } from 'lodash'
-// import { Contract } from 'web3-eth-contract'
-// import { Web3 } from 'web3'
 
-// var Contract = require('web3-eth-contract')
-// const Web3 = require('web3')
 const getApproval = () => {
     const { v1, erc1155Abi, erc1155, account } = useContext(UngrundContext)
     const { data, isError, isLoading } = useContractRead({
@@ -40,7 +34,6 @@ const Approve = () => {
     hash: data?.hash,
     })
     const onSubmit = () => {
-        console.log('hi')
         write?.()
     }
     return(
@@ -85,34 +78,9 @@ const Transaction = ({ tokenId }) => {
         </div>
     )
 }
-
+// add only for token holder
 export const Swap = ({ tokenId }) => {
-    console.log (tokenId)
-    // const { swapAbi, v1, erc1155Abi, erc1155, account } = useContext(UngrundContext)
-    // const transaction = async () => {
 
-    //     setLoading(true)
-
-    //     Contract.setProvider(Web3.givenProvider);
-    //     let web3 = new Web3(Web3.givenProvider);
-
-    //     let s = new Contract(swapAbi, v1)
-    //     let tk = new Contract(erc1155Abi, erc1155)
-
-    //     let batch = new web3.BatchRequest()
-
-    //     // verify if already approved ?
-    //     if (!await tk.methods.isApprovedForAll(account, v1).call()) batch.add(tk.methods.setApprovalForAll(v1, true).send({ from: account }))
-    //     batch.add(s.methods.swap(id, amount, (value * 1000000000000000000).toString(), erc1155).send({ from: account }))
-
-    //     try {
-    //         console.log(await batch.execute(res => res))
-    //         setLoading(false)
-    //     } catch (err) {
-    //         setLoading(false)
-    //     }
-    // }
-    console.log(tokenId)
     let approval = getApproval(tokenId); 
     const frax = async () => { }
 
