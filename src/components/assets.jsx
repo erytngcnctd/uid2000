@@ -16,7 +16,7 @@ const assets = async (address) => {
     // available_not : "0"
     const tokensQuery = `query
     {
-        uris(where: { from : "${address}", tokenMetaData_: {mimeType_not: ""}}, orderBy: timestamp,  orderDirection: desc) {
+        uris(where: { editions_not : "0", from : "${address}", tokenMetaData_: {mimeType_not: ""}}, orderBy: timestamp,  orderDirection: desc) {
                   tokenId
                   tokenMetaData {
                     mimeType
@@ -42,12 +42,11 @@ const assets = async (address) => {
 
 const collection = async (address, creations) => {
 
-    const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.61"
+    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.61"
 
     const from = `query
     {
         transfers(where: { from : "${address}" }) {
-                  tokenId
                   value
                   from
                   tokenId
