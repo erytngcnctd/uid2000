@@ -40,6 +40,8 @@ export class Token extends Component {
                 tokenId
                 editions
                 tokenMetaData {
+                  name
+                  description
                   mimeType
                   image
                   animation_url
@@ -318,8 +320,8 @@ export class Token extends Component {
                             }
                             {
                                 this.state.option === undefined || this.state.option === 'info' ? <div><br />
-                                    {this.state.token[0].tokenMetaData.name ? <span>{this.state.token[0].tokenMetaData.name}<br /></span> : undefined}
-                                    {this.state.token[0].tokenMetaData.description ? <span>{this.state.token[0].tokenMetaData.description}<br /></span> : undefined}
+                                    {this.state.token[0].tokenMetaData.name ? <span>{this.state.token[0].tokenMetaData.name}<br /></span> : undefined}<br/>
+                                    {this.state.token[0].tokenMetaData.description ? <span>{this.state.token[0].tokenMetaData.description}<br /></span> : undefined}<br />
                                     {this.state.token[0].tokenMetaData.mimeType ? <span>{this.state.token[0].tokenMetaData.mimeType}<br /></span> : undefined}
                                     <Royalties tokenId={this.state.token[0].tokenId} />
                                     {/* {this.state.token[0].attributes ? <span><br />{this.state.token[0].attributes.split(' ').map(e => <span><span className='tag'>{e}</span> </span>)}</span> : undefined } */}
