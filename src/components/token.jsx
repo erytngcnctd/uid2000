@@ -69,7 +69,7 @@ export class Token extends Component {
         let burn = _.filter(_.filter(data.data.transfers, { to: this.context.dummy }), { tokenId: String(id) })
         burn.map(e => e.amount = Number(e.amount))
         //console.log(tks.map(e => e._value = Number(e._value)))
-        console.log(tks)
+        // console.log(tks)
         // this.setState({ editions: _.sumBy(parseInt(tks), 'value') - _.sumBy(parseInt(burn), 'value') })
         this.setState({ editions: data.data.uris[0].editions })
         return data.data
