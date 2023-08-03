@@ -1,4 +1,4 @@
-import { useWeb3Modal } from "@web3modal/react"
+import { useWeb3Modal, useWeb3ModalTheme } from "@web3modal/react"
 import { useState, useEffect, useContext } from "react"
 import { useAccount, useDisconnect, useNetwork, useSwitchNetwork } from "wagmi"
 import { polygon } from 'wagmi/chains'
@@ -9,6 +9,7 @@ export const SyncButton = () => {
   const { open, setDefaultChain } = useWeb3Modal()
   const { chain  } = useNetwork()
   const { switchNetwork } = useSwitchNetwork()
+  const { theme, setTheme } = useWeb3ModalTheme()
   const { isConnected } = useAccount()
   const { disconnect } = useDisconnect()
   const { account, setAccount } = useContext(UngrundContext)
@@ -32,6 +33,30 @@ export const SyncButton = () => {
     localStorage.removeItem("sync", false)
    }
   }, [isConnected])
+
+  useEffect(() => {
+    setTheme({
+      // themeMode: 'dark',
+      themeVariables: {
+        '--w3m-font-family': 'monospace',
+        '--w3m-accent-color': '#000',
+        '--w3m-wallet-icon-small-border-radius': '0',
+        '--w3m-wallet-icon-large-border-radius': '0',
+        '--w3m-icon-button-border-radius': '0',
+      //  '--w3m-overlay-background-color': '#fff',
+       '--w3m-background-color': "#fff",
+       '--w3m-background-border-radius': '0',
+       '--w3m-wallet-icon-border-radius': '0',
+       '--w3m-button-border-radius': '0',
+       '--w3m-secondary-button-border-radius': '0',
+       '--w3m-button-hover-highlight-border-radius': '0',
+       '--w3m-container-border-radius': '0',
+       '--w3m-logo-image-url': '/favicon.ico'
+        // ...
+      }
+    })
+  }, [])
+  
 
   const onOpen = async() => {
     setLoading(true);

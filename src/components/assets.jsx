@@ -35,7 +35,6 @@ const assets = async (address) => {
     })
 
     const data = await client.query(tokensQuery).toPromise();
-    console.log(data)
     return data.data?.uris
 
 }
@@ -77,17 +76,17 @@ const collection = async (address, creations) => {
     _in = _in.filter(e => e.from != "0x0000000000000000000000000000000000000000" && !creations.map(e => e.tokenId).includes(e.tokenId))
 
     _in.map(e => e.value = Number(e.value))
-    console.log(_in)
+    // console.log(_in)
 
     _out.map(e => e.value = Number(e.value))
-    console.log(_out)
+    // console.log(_out)
 
     // filter market/burn/secondary
 
     let id_in = _in.map(e => e.tokenId)
 
     // in - out + on sale
-    console.log(JSON.stringify(id_in))
+    // console.log(JSON.stringify(id_in))
 
     const metadata = `query
     {
@@ -102,14 +101,14 @@ const collection = async (address, creations) => {
         }
     }`
     let data = await client.query(metadata).toPromise()
-    console.log('data', data)
+    // console.log('data', data)
     return data.data.uris
 
 }
 
 const getID = async (id) => {
     const APIURL = "https://api.thegraph.com/subgraphs/name/crzypatchwork/ungrund"
-    console.log(decodeURI(id))
+    // console.log(decodeURI(id))
     const transfers = `query
     {
         ungrundIds (where: { id : "${encodeURI(id)}" }) {
@@ -178,7 +177,7 @@ export class Assets extends Component {
     componentWillMount = async () => {
         let aux
         let uid = await ungrundID(window.location.hash.split('/')[1])
-        console.log(uid)
+        // console.log(uid)
         uid?.id == undefined ? aux = await assets(window.location.hash.split('/')[1]) : aux = await assets(uid.id)
         if (uid?.id == undefined) uid = await getID(window.location.hash.split('/')[1])
         //window.location.hash = uid.ungrundId
@@ -188,14 +187,14 @@ export class Assets extends Component {
             id: uid?.id ? uid.id : window.location.hash.split('/')[1]
         })
 
-        console.log(aux)
+        // console.log(aux)
         aux = await aux.map(async e => {
             if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`).then(res => res.data)
             return e
         })
 
         Promise.all(aux).then(values => {
-            console.log(values)
+            // console.log(values)
             this.setState({ arr: values.slice(this.state.offset, this.state.offset + 8), aux: values, creations: values, loading: false })
         })
 
@@ -212,7 +211,7 @@ export class Assets extends Component {
         })
 
         Promise.all(aux).then(values => {
-            console.log(values)
+            // console.log(values)
             this.setState({ arr: values.slice(this.state.offset, this.state.offset + 8), aux: values, loading: false })
         })
 
