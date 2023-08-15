@@ -8,6 +8,8 @@ import minter from '../abis/minter.json'
 import v1 from '../abis/v1.json'
 import erc1155 from '../abis/erc1155.json'
 import erc20 from '../abis/erc20.json'
+import wuwei from '../abis/wuwei.json'
+import lp from '../abis/lp.json'
 import aggregator from '../abis/aggregator.json'
 import id from '../abis/id.json'
 
@@ -58,6 +60,8 @@ class UngrundContextProviderClass extends Component {
       subjkt: '0xD38f85BC8eE06f49ae43BfF78a8aaD9Ec47B64aA',
       v1: '0x563Ae9F8CEE2dd553C62646e0328bB78B2438170',
       v2: '0xA8AacB35a9678aa2e6b1cB6411B629bc54CdDd76',
+      wuwei: '0x693e5B552d55B3ED80c864b828b995461C47Fe0a',
+      lp: '0x09baffd346bae2803fc3ac5fb4b50de354170d32',
       frax: '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89',
       mim: '0x130966628846bfd36ff31a822705796e8cb8c18d',
       dummy: '0x84398272c77a35e765eff8fcb95af3bf941581a5',
@@ -68,6 +72,8 @@ class UngrundContextProviderClass extends Component {
       aggregator: aggregator,
       erc1155Abi: erc1155,
       erc20Abi: erc20,
+      wuweiAbi: wuwei,
+      lpAbi: lp,
       account: undefined,
       token: undefined,
       // wallet: web3modal,

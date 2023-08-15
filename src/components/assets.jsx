@@ -12,19 +12,19 @@ function toHex(d) {
 }
 
 const assets = async (address) => {
-    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.61"
+    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.66"
     // available_not : "0"
     const tokensQuery = `query
     {
-        uris(where: { editions_not : "0", from : "${address}", tokenMetaData_: {mimeType_not: ""}}, orderBy: timestamp,  orderDirection: desc) {
-                  tokenId
+        tokens(where: { editions_not : "0", creator : "${address}", tokenMetaData_: {mimeType_not: ""}}, orderBy: timestamp,  orderDirection: desc) {
+                  id
                   tokenMetaData {
                     mimeType
                     image
                     animation_url
                   }
                   metaDataUri
-                  from
+                  creator
                   timestamp
         }
     }`
@@ -35,13 +35,13 @@ const assets = async (address) => {
     })
 
     const data = await client.query(tokensQuery).toPromise();
-    return data.data?.uris
+    return data.data?.tokens
 
 }
 
 const collection = async (address, creations) => {
 
-    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.61"
+    const APIURL = "https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.66"
 
     const from = `query
     {
@@ -204,7 +204,7 @@ export class Assets extends Component {
         this.setState({ loading: true })
 
         let aux = await assets(id)
-
+console.log(aux)
         aux = await aux.map(async e => {
             if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetadata.image.split('//')[1]}`).then(res => res.data)
             return e
@@ -267,10 +267,10 @@ export class Assets extends Component {
                                         this.state.arr.map(e => {
                                             {
                                                 return (
-                                                    <div key={e.tokenId} className="column">
+                                                    <div key={e.tokenId || e.id} className="column">
                                                         {
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
-                                                                <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
                                                                     <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                 </a>
                                                                 :
@@ -279,7 +279,7 @@ export class Assets extends Component {
                                                         {
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
                                                                 <div className='txt' style={{ maxWidth: '50vw' }}>
-                                                                    <a className='nostyle' href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                    <a className='nostyle' href={`#/asset/${toHex(e.tokenId || e.id)}`}>
                                                                         <ReactMarkdown>
                                                                             {e.text}
                                                                         </ReactMarkdown>
@@ -290,7 +290,7 @@ export class Assets extends Component {
                                                         {
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'video' ?
                                                                 <div>
-                                                                    <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                    <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
                                                                         <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
                                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`}></source>
                                                                         </video>
@@ -300,7 +300,7 @@ export class Assets extends Component {
                                                         {
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                                 <div>
-                                                                    <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                    <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
                                                                         <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                         <audio controls style={{ width: '100%' }}>
                                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
@@ -311,7 +311,7 @@ export class Assets extends Component {
                                                         {
                                                             e.tokenMetaData.mimeType == 'application/pdf' ?
                                                                 <div>
-                                                                    <a href={`#/asset/${toHex(e.tokenId)}`}>
+                                                                    <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
                                                                         <Document
                                                                             file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
                                                                         >

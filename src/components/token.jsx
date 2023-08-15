@@ -7,14 +7,15 @@ import { Burn } from './burn'
 import { Transfer } from './transfer'
 import { Royalties } from './royalties'
 import { Collect } from './collect'
-import { _ } from 'lodash'
+import { _, add } from 'lodash'
+import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 
 // function toHex(d) {
 //     return (Number(d).toString(16)).slice(-2).toUpperCase()
 // }
 
-const APIURL = 'https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.61'
+const APIURL = 'https://api.studio.thegraph.com/query/49421/uidgraph/v0.0.66'
 
 export class Token extends Component {
 
@@ -25,19 +26,20 @@ export class Token extends Component {
         listings: undefined,
         loading: true,
         // royalties: undefined,
+        holder: false,
         market: undefined,
         editions: undefined,
         orders: undefined,
         flag: false
     }
 
-    metadata = async (id) => {
+    metadata = async (id, address) => {
 
         const tokensQuery = `
         query 
           {
-            uris (where : { tokenId: ${id} }){
-                tokenId
+            tokens (where : { id: ${id} }){
+                id
                 editions
                 tokenMetaData {
                   name
@@ -47,7 +49,7 @@ export class Token extends Component {
                   animation_url
                 }
                 metaDataUri
-                from
+                creator
                 timestamp
             }
             transfers(where : { tokenId: ${id} }, orderBy: timestamp, orderDirection: desc) {
@@ -58,6 +60,10 @@ export class Token extends Component {
                 value
                 timestamp
             }
+            ${address && `holders(where: {tokenId: ${id}, address: "${address}"}) {
+                amount
+                address
+              }`}
         }
       `
 
@@ -67,13 +73,14 @@ export class Token extends Component {
     });
 
         const data = await client.query(tokensQuery).toPromise();
+
         let tks = _.filter(_.filter(data.data.transfers, { from: "0x0000000000000000000000000000000000000000" }), { tokenId: String(id) })
         let burn = _.filter(_.filter(data.data.transfers, { to: this.context.dummy }), { tokenId: String(id) })
         burn.map(e => e.amount = Number(e.amount))
         //console.log(tks.map(e => e._value = Number(e._value)))
         // console.log(tks)
         // this.setState({ editions: _.sumBy(parseInt(tks), 'value') - _.sumBy(parseInt(burn), 'value') })
-        this.setState({ editions: data.data.uris[0].editions })
+        this.setState({ editions: data.data.tokens[0].editions })
         return data.data
 
     }
@@ -87,7 +94,7 @@ export class Token extends Component {
                     tokenId
                     swapId
                     timestamp
-                    transactionHash
+                    hash
                     amount
                     value
                     op
@@ -112,12 +119,13 @@ export class Token extends Component {
         let tokenId = parseInt(window.location.hash.split('/')[2], 16)
         // tokenId=150
         // treat metadata/display options
-
-        let metadata = await this.metadata(tokenId)
-        let aux = metadata.uris.map(async e => {
-            if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.image.split('//')[1]}`).then(res => res.data)
+        let address = localStorage.getItem('account') || ''
+        let metadata = await this.metadata(tokenId, address)
+        let aux = metadata.tokens.map(async e => {
+            if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`).then(res => res.data)
             return e
         })
+        metadata.holders && metadata.holders[0]?.amount > 0 && this.setState({holder: true})
         let transfers = metadata.transfers
         transfers = transfers.filter(e => e.from != this.context.v1.toLowerCase() && e.to != this.context.v1.toLowerCase() && e.from != '0x0000000000000000000000000000000000000000')
         //let transfers = (_.filter(metadata.tokenTransfers, { _from: "0x0000000000000000000000000000000000000000" }))
@@ -181,29 +189,30 @@ export class Token extends Component {
 
     setOption = (option) => this.setState()
 
-    holders = async (tokenId) => {
+    // holders = async (tokenId) => {
 
-        const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.61"
-        const transfers = `query
-        {
-            transfers(where: { tokenId : "${tokenId}" }) {
-                      tokenId
-                      value
-                      from
-                      to
-            }
-        }`
+    //     const APIURL = "https://api.studio.thegraph.com/proxy/49421/v0.0.66"
+        // const transfers = `query
+        // {
+        //     transfers(where: { tokenId : "${tokenId}" }) {
+        //               tokenId
+        //               value
+        //               from
+        //               to
+        //     }
+        // }`
+        
 
-        const client = createClient({
-            url: APIURL,
-            cacheExchange, fetchExchange
-        });
+        // const client = createClient({
+        //     url: APIURL,
+        //     cacheExchange, fetchExchange
+        // });
 
 
-        let res = (await client.query(transfers).toPromise()).data.transfers
-        console.log('res', res)
-        return res
-    }
+    //     let res = (await client.query(transfers).toPromise()).data.transfers
+    //     console.log('res', res)
+    //     return res
+    // }
 
     orderBook = async (tokenId) => {
         let res = await this.listings(parseInt(window.location.hash.split('/')[2], 16))
@@ -256,7 +265,7 @@ export class Token extends Component {
                                             title="ungrund PDF renderer"
                                             src={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].tokenMetaData.image.split('//')[1]}#zoom=100`}
                                             loading="lazy"
-                                            sandbox
+                                            // sandbox
                                         />
                                         :
                                         undefined
@@ -272,7 +281,7 @@ export class Token extends Component {
                                 }
                                 <br />
                                 {this.state.market == 0 ? <span>X</span> : <span>{this.state.market}</span>}/{this.state.editions} ed.<br />
-                                <a className='style' href={`#/${this.state.token[0].from}`}>{this.state.token[0].from.slice(0, 7)}...{this.state.token[0].from.slice(36, 42)}</a><br /><br />
+                                <a className='style' href={`#/${this.state.token[0].creator}`}>{this.state.token[0].creator.slice(0, 7)}...{this.state.token[0].creator.slice(36, 42)}</a><br /><br />
                             </div>
 
                             {
@@ -307,15 +316,16 @@ export class Token extends Component {
                                 <div style={{ display: 'inline' }}>
                                     <span>
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'info' })}>info</a>&nbsp;&nbsp;
-                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].tokenId) }} >order book</a>&nbsp;&nbsp;
+                                        <a className='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].id) }} >order book</a>&nbsp;&nbsp;
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'history' })} >history</a>&nbsp;&nbsp;
-                                        {
-                                            // holder ?
-                                        }
+                                    </span>
+                                    {this.state.holder == true && 
+                                        <span>
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'swap' })} >swap</a>&nbsp;&nbsp;
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'burn' })} >burn</a>&nbsp;&nbsp;
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'transfer' })} >transfer</a>&nbsp;&nbsp;
-                                    </span>
+                                        </span>
+                                    }
                                 </div>
                             }
                             {
@@ -323,7 +333,7 @@ export class Token extends Component {
                                     {this.state.token[0].tokenMetaData.name ? <span>{this.state.token[0].tokenMetaData.name}<br /></span> : undefined}<br/>
                                     {this.state.token[0].tokenMetaData.description ? <span>{this.state.token[0].tokenMetaData.description}<br /></span> : undefined}<br />
                                     {this.state.token[0].tokenMetaData.mimeType ? <span>{this.state.token[0].tokenMetaData.mimeType}<br /></span> : undefined}
-                                    <Royalties tokenId={this.state.token[0].tokenId} />
+                                    <Royalties tokenId={this.state.token[0].id} />
                                     {/* {this.state.token[0].attributes ? <span><br />{this.state.token[0].attributes.split(' ').map(e => <span><span className='tag'>{e}</span> </span>)}</span> : undefined } */}
                                 </div> : undefined
                             }
@@ -415,7 +425,7 @@ export class Token extends Component {
                                         {
                                             this.state.token.length != 0  ?
                                                     <tr>
-                                                        <td><a className="style" href={`https://polygonscan.com/tx/${this.state.token[0].transactionHash}`}>minted</a></td>
+                                                        <td><a className="style" href={`https://polygonscan.com/tx/${this.state.token[0].hash}`}>minted</a></td>
                                                         <td>{new Date(parseInt(this.state.token[0].timestamp) * 1000).toUTCString()}</td>
                                                         <td><Royalties tokenId={this.state.token[0].tokenId} /></td>
                                                         {/* <td>     <Royalties tokenId={this.state.token[0].tokenId} /></td> */}
@@ -428,8 +438,7 @@ export class Token extends Component {
                                     :
                                     undefined
                             }
-                            
-                            {   /* limit to creator or holder */ this.state.option == 'swap' ? <Swap tokenId={this.state.token[0].tokenId} /> : undefined}
+                            {this.state.option == 'swap' ? <Swap tokenId={this.state.token[0].tokenId} /> : undefined}
                             {this.state.option == 'burn' ? <Burn id={this.state.token[0].tokenId} /> : undefined}
                             {this.state.option == 'transfer' ? <Transfer id={this.state.token[0].tokenId} /> : undefined}
                             <br />

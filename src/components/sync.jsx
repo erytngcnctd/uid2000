@@ -51,7 +51,7 @@ export const SyncButton = () => {
        '--w3m-secondary-button-border-radius': '0',
        '--w3m-button-hover-highlight-border-radius': '0',
        '--w3m-input-border-radius': '0',
-       '--w3m-accent-fill-color': '#000',
+      //  '--w3m-accent-fill-color': '#000',
        '--w3m-container-border-radius': '0',
        '--w3m-logo-image-url': '/favicon.ico'
         // ...
