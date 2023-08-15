@@ -49,19 +49,21 @@ const Approve = (account, amount) => {
 
 const Transaction = ({ tokenId }) => {
     const { lp, lpAbi } = useContext(UngrundContext)
-    const [amount, setAmount] = useState(0)
+    const [dx, setDx] = useState(0)
+    const [minDy, setminDy] = useState(0)
     const [swapI, setSwapI] = useState(0)
     const [swapJ, setSwapJ] = useState(1)
     
-    const debouncedAmount = useDebounce(Amount, 500)
+    const debouncedDx = useDebounce(dx, 500)
+    const debouncedMinDy = useDebounce(Dy, 500)
 
     
     const { config } = usePrepareContractWrite({
         address: lp,
         abi: lpAbi,
         functionName: 'exchange',
-        args: [parseInt(swapI), parseInt(soldId), parseInt(debouncedAmount), parseEther(debouncedValue.toString()), erc1155],
-        enabled: [Boolean(Address), Boolean(soldId), Boolean(soldAmount), Boolean(boughtId), Boolean(boughAmount)]
+        args: [parseInt(swapI), parseInt(swapJ), parseEther(debouncedDx.toString()),parseEther(debouncedMinDy.toString()) ],
+        enabled: [Boolean(swapI), Boolean(swapJ), Boolean(dx), Boolean(minDy)]
     })
 
     const { data, write } = useContractWrite(config)
@@ -73,8 +75,8 @@ const Transaction = ({ tokenId }) => {
         <div><br />
             {
                 <div>
-                    <input type="text" placeholder="amount" id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} /><br />
-                    <input type="text" placeholder="value" id="value" value={value} onChange={(e) => setValue(e.target.value)} /><br />
+                    <input type="text" placeholder="amount" id="amount" value={amount} onChange={(e) => setDx(e.target.value)} /><br />
+    
                     <a className="button style" onClick={() => write?.() } style={{ cursor: 'pointer' }}>swap</a>
                 </div>
             }
@@ -86,6 +88,6 @@ export const Defi = ({ tokenId }) => {
 
     let allowance = getAllowance(account); 
 
-    if (!allowance) return <Approve />
+    if (!allowance) return <Approve  account={account} amount={dx} />
     else return <Transaction tokenId={ tokenId } />
 }
