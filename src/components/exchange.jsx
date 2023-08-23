@@ -47,7 +47,7 @@ export class Exchange extends Component {
                 <a class="stile button" style={{ cursor: 'pointer' }} onClick={this.exchange}>BUY X</a><br/><br/>
 
                 <input type="text" placeholder="amount" name="amount" onChange={this.handleChange} /><br/>
-                <a class="stile button" style={{ cursor: 'pointer' }} onClick={this.exchange}>BUY X</a>
+                <a class="stile button" style={{ cursor: 'pointer' }} onClick={this.exchange}>SELL X</a>
             </div>
         )
     }
