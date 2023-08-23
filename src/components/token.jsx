@@ -7,6 +7,7 @@ import { Burn } from './burn'
 import { Transfer } from './transfer'
 import { Royalties } from './royalties'
 import { Collect } from './collect'
+import { Cancel } from './cancel'
 import { _, add } from 'lodash'
 import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
@@ -176,16 +177,16 @@ export class Token extends Component {
     //     }
     // }
 
-    cancel = async (swapId) => {
-        let contract = new Contract(this.context.swapAbi, this.context.v1)
-        contract.provider = web3 
-        try {
-            let result = await contract.methods.cancelSwap(swapId).send({ from: this.context.account })
-            console.log(result)
-        } catch (err) {
-            console.log(err)
-        }
-    }
+    //cancel = async (swapId) => {
+    //    let contract = new Contract(this.context.swapAbi, this.context.v1)
+    //    contract.provider = web3 
+    //    try {
+    //        let result = await contract.methods.cancelSwap(swapId).send({ from: this.context.account })
+    //        console.log(result)
+    //    } catch (err) {
+    //        console.log(err)
+    //    }
+    //}
 
     setOption = (option) => this.setState()
 
@@ -352,7 +353,7 @@ export class Token extends Component {
                                                             {/* <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a></td> */}
                                                             <td><Collect swapId={e.swapId} value={e.value / 1000000000000000000 }/></td>
                                                             {
-                                                                e.issuer == this.context.account?.toLowerCase() ? <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.cancel(e.swapId)}>cancel</a></td> : undefined
+                                                                e.issuer == this.context.account?.toLowerCase() ? <td><Cancel swapId={e.swapId} /></td> : undefined
                                                             }
                                                         </tr>
                                                     )
