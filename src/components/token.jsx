@@ -215,6 +215,8 @@ export class Token extends Component {
     //     return res
     // }
 
+
+    //holders
     orderBook = async (tokenId) => {
         let res = await this.listings(parseInt(window.location.hash.split('/')[2], 16))
         // let res = await this.listings(150)
