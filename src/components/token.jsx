@@ -28,13 +28,14 @@ export class Token extends Component {
         loading: true,
         // royalties: undefined,
         holder: false,
+        holders: [],
         market: undefined,
         editions: undefined,
         orders: undefined,
         flag: false
     }
 
-    metadata = async (id, address) => {
+    metadata = async (id) => {
 
         const tokensQuery = `
         query 
@@ -51,6 +52,7 @@ export class Token extends Component {
                 }
                 metaDataUri
                 creator
+                hash
                 timestamp
             }
             transfers(where : { tokenId: ${id} }, orderBy: timestamp, orderDirection: desc) {
@@ -59,12 +61,13 @@ export class Token extends Component {
                 to
                 tokenId
                 value
+                hash
                 timestamp
             }
-            ${address && `holders(where: {tokenId: ${id}, address: "${address}"}) {
+            holders(where: { tokenId: ${id}, amount_gt: "0", address_not: "0x563Ae9F8CEE2dd553C62646e0328bB78B2438170" } ) {
                 amount
                 address
-              }`}
+              }
         }
       `
 
@@ -114,19 +117,18 @@ export class Token extends Component {
 
     }
 
-
     componentWillMount = async () => {
 
         let tokenId = parseInt(window.location.hash.split('/')[2], 16)
         // tokenId=150
         // treat metadata/display options
         let address = localStorage.getItem('account') || ''
-        let metadata = await this.metadata(tokenId, address)
+        let metadata = await this.metadata(tokenId)
         let aux = metadata.tokens.map(async e => {
             if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`).then(res => res.data)
             return e
         })
-        metadata.holders && metadata.holders[0]?.amount > 0 && this.setState({holder: true})
+        metadata?.holders && this.setState({holders: metadata.holders, holder: metadata.holders.some(e => e.address == address.toLowerCase())})
         let transfers = metadata.transfers
         transfers = transfers.filter(e => e.from != this.context.v1.toLowerCase() && e.to != this.context.v1.toLowerCase() && e.from != '0x0000000000000000000000000000000000000000')
         //let transfers = (_.filter(metadata.tokenTransfers, { _from: "0x0000000000000000000000000000000000000000" }))
@@ -216,17 +218,15 @@ export class Token extends Component {
     // }
 
 
-    //holders
     orderBook = async (tokenId) => {
         let res = await this.listings(parseInt(window.location.hash.split('/')[2], 16))
         // let res = await this.listings(150)
         // console.log(res)
         res = res.map(e => e.amount = Number(e.amount))
         res = _.filter(res, { op: "0" })
-        let available = _.sumBy(res, 'amount')
+        // let available = _.sumBy(res, 'amount')
         // this.holders(parseInt(window.location.hash.split('/')[2], 16))
         //console.log(available)
-        //console.log(res)
         this.setState({ active: res, collectors: [] })
     }
 
@@ -322,7 +322,7 @@ export class Token extends Component {
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => { this.setState({ option: 'book' }); this.orderBook(this.state.token[0].id) }} >order book</a>&nbsp;&nbsp;
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'history' })} >history</a>&nbsp;&nbsp;
                                     </span>
-                                    {this.state.holder == true && 
+                                    {this.state.holder && this.context.account &&
                                         <span>
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'swap' })} >swap</a>&nbsp;&nbsp;
                                         <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.setState({ option: 'burn' })} >burn</a>&nbsp;&nbsp;
@@ -362,6 +362,19 @@ export class Token extends Component {
                                                 })}
                                             </tbody>
                                         </table>
+                                        <br/>
+                                        <table style={{ display: 'block' }}>
+                                            <tbody>
+                                                {this.state.holders.map((e,i) => {
+                                                    return (
+                                                        <tr key={i}>
+                                                            <td>{e.amount} ed.</td>
+                                                            <td><a className='style' href={`#/${e.issuer}`}>{e.address.slice(0, 7)}...{e.address.slice(36, 42)}</a></td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </table>
                                     </>
                                     :
                                     undefined
@@ -378,7 +391,7 @@ export class Token extends Component {
                                                     if (e.op == 0) {
                                                         return (
                                                                 <tr key={i} style={{ width: '100%' }}>
-                                                                    <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>swap</a></td>
+                                                                    <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.hash}`}>swap</a></td>
                                                                     <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
                                                                     <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
                                                                     <td>{e.amount} ed.</td>
@@ -389,7 +402,7 @@ export class Token extends Component {
                                                     if (e.op == 1) {
                                                         return (
                                                             <tr key={i}>
-                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>trade</a></td>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.hash}`}>trade</a></td>
                                                                 <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
                                                                 <td><a className="style" href={`#/${e.seller}`}>{e.seller.slice(0, 7)}...{e.seller.slice(36, 42)}</a></td>
                                                                 <td>{e.amount} ed.</td>
@@ -401,7 +414,7 @@ export class Token extends Component {
                                                     if (e.op == 2) {
                                                         return (
                                                             <tr key={i}>
-                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>cancel</a></td>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.hash}`}>cancel</a></td>
                                                                 <td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td>
                                                                 <td><a className="style" href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
                                                                 <td>{e.amount} ed.</td>
@@ -412,14 +425,14 @@ export class Token extends Component {
                                                     if (e.to == this.context.dummy.toLowerCase()) {
                                                         return (
                                                             <tr key={i}>
-                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>burn</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.hash}`}>burn</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td>
                                                             </tr>
                                                         )
                                                     }
                                                     if (e.to != this.context.dummy.toLowerCase()) {
                                                         return (
                                                             <tr key={i}>
-                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.id}`}>transfer</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td><td><a className="style" href={`#/${e.to}`}>{e.to.slice(0, 7)}...{e.to.slice(36, 42)}</a></td>
+                                                                <td><a className="style" style={{ cursor: 'pointer' }} href={`https://polygonscan.com/tx/${e.hash}`}>transfer</a></td><td>{new Date(parseInt(e.timestamp) * 1000).toUTCString()}</td><td><a className="style" href={`#/${e.from}`}>{e.from.slice(0, 7)}...{e.from.slice(36, 42)}</a></td><td>{e.value} ed.</td><td><a className="style" href={`#/${e.to}`}>{e.to.slice(0, 7)}...{e.to.slice(36, 42)}</a></td>
                                                             </tr>
                                                         )
                                                     }

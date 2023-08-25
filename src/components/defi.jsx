@@ -55,15 +55,15 @@ const Approve = (account, amount) => {
 
 const GetDy = props => {
     const { lp, lpAbi } = useContext(UngrundContext)
-    const { data, isError, isLoading } = useContractRead({
+    const { data, isError, isLoading } = useContractRead(props._dx > 0 ? {
         address: lp,
         abi: lpAbi,
         functionName: 'get_dy',
         args: props._directional ? [1, 0, parseEther(props._dx.toString())] : [0, 1, parseEther(props._dx.toString())],
-    })
+    } : {})
     return (
         <div>
-            <input type="text" placeholder="0" id="dy" value={data ? parseInt(BigInt(data)) / 10 ** 18 : 0} />
+            <input type="text" placeholder="0" id="dy" onChange={()=>{}} value={data ? parseInt(BigInt(data)) / 10 ** 18 : 0} />
             {!props._directional ? <span>MATIC</span> : <span>███</span>}
             <br />
         </div>
@@ -137,7 +137,7 @@ export const Defi = () => {
                 <input type="text" placeholder="0" id="dx" value={dx} onChange={(e) => { setDx(e.target.value) }} />
                 {directional ? <span>MATIC</span> : <span>███</span>}
                 <br />
-                <a className="button style" style={{ cursor: 'pointer' }} onClick={() => setDirectional(!directional)}>⇅</a>
+                <a className="button style" style={{ cursor: 'pointer', marginLeft: '172px' }} onClick={() => setDirectional(!directional)}>⇅</a>
                 <br />
                 <GetDy _directional={directional} _dx={dx} />
                 {/* slippage warning */}
