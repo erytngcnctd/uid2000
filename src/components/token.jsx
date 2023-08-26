@@ -466,7 +466,7 @@ export class Token extends Component {
                             {this.state.option == 'burn' ? <Burn id={this.state.token[0].id} /> : undefined}
                             {this.state.option == 'transfer' ? <Transfer id={this.state.token[0].id} /> : undefined}
                             <br />
-                            <a className='style' href={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].metaDataUri}`}>metadata</a>&nbsp;&nbsp;<a className='style' href={`https://ipfs.io/ipfs/${this.state.token[0].tokenMetaData.animation_url ? this.state.token[0].tokenMetaData.animation_url : this.state.token[0].tokenMetaData.image}`}>view on ipfs</a>
+                            <a className='style' href={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].metaDataUri}`}>metadata</a>&nbsp;&nbsp;<a className='style' href={`https://ipfs.io/ipfs/${this.state.token[0].tokenMetaData.animation_url?.split('//')[1] ? this.state.token[0].tokenMetaData.animation_url : this.state.token[0].tokenMetaData.image?.split('//')[1]}`}>view on ipfs</a>
                         </div>
                         :
                         undefined
