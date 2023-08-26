@@ -3,14 +3,14 @@ import { UngrundContext } from '../context/UngrundContext'
 import { NFTStorage  } from 'nft.storage'
 import { Loading } from './load'
 // import { mime } from 'mime'
-import { findHashtags } from 'find-hashtags'
+// import { findHashtags } from 'find-hashtags'
 import { useDebounce } from 'usehooks-ts'
 import {
     useContractWrite, 
     useWaitForTransaction,
     usePrepareContractWrite, 
 } from 'wagmi'
-import { isError } from 'lodash'
+// import { isError } from 'lodash'
 
 let apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEY1NDdDNUIyMjMzMTc3MDZkZDdkODNEMjA4ODRkRDgxOTIxNTBiNEUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTYyODE5NTc4NTc2MSwibmFtZSI6InRlc3QifQ.RED_BCrWtUgodnbLxdFV5lKxVTPruv1Cg-bcDL7jtrI'
 
@@ -22,7 +22,7 @@ export const Mint = () => {
     const [description, setDescription] = useState(null)
     const [amount, setAmount] = useState(1)
     const [royalties, setRoyalties] = useState(10)
-    const [hashtags, setHashtags] = useState(null)
+    // const [hashtags, setHashtags] = useState(null)
     const [file, setFile] = useState(null)
     const [display, setDisplay] = useState(null)
     const [video, setVideo] = useState(null)
@@ -40,7 +40,9 @@ export const Mint = () => {
         args: [parseInt(debouncedAmount), parseInt(debouncedRoyalties * 100), uri],
         enabled: [Boolean(debouncedAmount), Boolean(debouncedRoyalties), Boolean(uri)]
     })
+
     const { data, write, isError } = useContractWrite(config)
+
     const { isLoading, isSuccess } = useWaitForTransaction({
         hash: data?.hash,
     }) 
@@ -60,6 +62,7 @@ export const Mint = () => {
         }
     
     const onDisplayUpload = e => setDisplay(e.target.files[0])
+
     const ipfs = async () => {
 
         setLoading(true)
@@ -87,7 +90,6 @@ export const Mint = () => {
                 animation_url: `ipfs://${artifact}`,
                 image: `ipfs://${display}`
             }
-
         } else {
 
             obj = {
@@ -102,16 +104,20 @@ export const Mint = () => {
         if (file.type != undefined) {
             obj.mimeType = file.type
         }
+
         let str = JSON.stringify(obj)
 
-        let nft = await client.storeBlob(new Blob([str], {
+        let cid = await client.storeBlob(new Blob([str], {
             type: "application/json"
         }))
-        setUri(uri => uri+nft)
-        console.log('metadata', obj, 'nft', nft)
+
+        setUri(uri => uri+cid)
+        console.log('metadata', obj, 'nft', cid)
+
     }
 
     return (
+
         loading ? <Loading /> :
         <div>  
             {
@@ -142,6 +148,7 @@ export const Mint = () => {
                         You must be synced.
                     </div>
             }
+            
         { preview && 
             <div><br/>
                 { file.type.split('/')[0] === 'image' ? 
@@ -194,6 +201,7 @@ export const Mint = () => {
             </div>        
         }
     </div>
+
     )
 }
 
