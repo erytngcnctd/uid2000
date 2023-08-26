@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import rollupNodePolyFill from 'rollup-plugin-polyfill-node'
-// import { splitVendorChunkPlugin } from 'vite'
+import { splitVendorChunkPlugin } from 'vite'
 
 export default defineConfig({
     plugins: [
@@ -10,7 +10,7 @@ export default defineConfig({
           enforce: 'post',
         },
       react(),
-      // splitVendorChunkPlugin(),
+      splitVendorChunkPlugin(),
     ],
     define: {
       global: 'globalThis',
@@ -35,9 +35,8 @@ export default defineConfig({
               '@web3modal/ethereum',
               '@web3modal/html',
               '@web3modal/react',
-              'webtorrent'
             ],
-            web3b: [ 'web3', 'wagmi', 'viem' ],
+            web3b: [ 'web3', 'wagmi' ],
             ipfs: ['nft.storage', 'ipfs-http-client' ],
             // pdf: ['react-pdf', 'pdfjs-dist'],
             react: [

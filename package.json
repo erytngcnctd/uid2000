@@ -9,6 +9,7 @@
     "@web3modal/react": "^2.7.0",
     "axios": "^1.4.0",
     "big-integer": "^1.6.51",
+    "create-torrent": "^6.0.11",
     "find-hashtags": "^1.0.1",
     "hicetnunc-sdk": "^1.0.13",
     "ipfs-http-client": "^52.0.5",
