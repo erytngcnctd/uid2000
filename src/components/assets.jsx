@@ -1,9 +1,11 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { createClient, cacheExchange, fetchExchange } from 'urql/core'
+import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { UngrundContext } from '../context/UngrundContext'
-import { Document, Page, pdfjs } from 'react-pdf'
+// import { Document, Page, pdfjs } from 'react-pdf'
 import ReactMarkdown from 'react-markdown'
+import { Loading } from './load'
 import { _ } from 'lodash'
 // const _ = require('lodash')
 
@@ -271,7 +273,10 @@ console.log(aux)
                                                         {
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
                                                                 <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
-                                                                    <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
+                                                                    <LazyLoadImage
+                                                                        placeholder={<Loading />}
+                                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
+                                                                    />
                                                                 </a>
                                                                 :
                                                                 undefined
@@ -301,7 +306,10 @@ console.log(aux)
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                                 <div>
                                                                     <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
-                                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
+                                                                        <LazyLoadImage
+                                                                            placeholder={<Loading />}
+                                                                            src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
+                                                                        /><br/>
                                                                         <audio controls style={{ width: '100%' }}>
                                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                                         </audio>
@@ -309,17 +317,17 @@ console.log(aux)
                                                                 </div> : undefined
                                                         }
                                                         {
-                                                            e.tokenMetaData.mimeType == 'application/pdf' ?
-                                                                <div>
-                                                                    <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
-                                                                        <Document
-                                                                            file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
-                                                                        >
-                                                                            <Page pageNumber={1} />
-                                                                        </Document>
-                                                                    </a>
-                                                                </div>
-                                                                : undefined
+                                                            // e.tokenMetaData.mimeType == 'application/pdf' ?
+                                                            //     <div>
+                                                            //         <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
+                                                            //             <Document
+                                                            //                 file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
+                                                            //             >
+                                                            //                 <Page pageNumber={1} />
+                                                            //             </Document>
+                                                            //         </a>
+                                                            //     </div>
+                                                            //     : undefined
                                                         }
                                                     </div>
                                                 )

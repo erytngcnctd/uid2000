@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { createClient, cacheExchange, fetchExchange } from 'urql/core'
 import { UngrundContext } from '../context/UngrundContext'
-import { Document, Page, Thumbnail, pdfjs } from 'react-pdf'
-import { Navigate } from "react-router-dom"
+// import { Document, Page, Thumbnail, pdfjs } from 'react-pdf'
+import { LazyLoadImage } from 'react-lazy-load-image-component'
+import { createClient, cacheExchange, fetchExchange } from 'urql/core'
+// import { Navigate } from "react-router-dom"
+import { Loading } from './load'
 import ReactMarkdown from 'react-markdown'
 import axios from 'axios'
 import '../App.css'
@@ -58,10 +60,10 @@ export class Feed extends Component {
     constructor(props) {
         super(props);
         // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-            'pdfjs-dist/build/pdf.worker.min.js',
-            import.meta.url,
-          ).toString();
+        // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+        //     'pdfjs-dist/build/pdf.worker.min.js',
+        //     import.meta.url,
+        //   ).toString();
     }
 
     state = {
@@ -104,7 +106,12 @@ export class Feed extends Component {
                                                                 {
                                                                     e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
                                                                         <a href={`#/asset/${toHex(e.id)}`}>
-                                                                            <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
+                                                                             <LazyLoadImage
+                                                                                // alt={image.alt}
+                                                                                placeholder={<Loading />}
+                                                                                src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
+                                                                            />
+                                                                            {/* <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /> */}
                                                                         </a>
                                                                         :
                                                                         undefined
@@ -132,27 +139,29 @@ export class Feed extends Component {
                                                                         </div> : undefined
                                                                 }
                                                                 {
-                                                                    e.tokenMetaData.mimeType == 'application/pdf' ?
-                                                                        <div>
-                                                                            {/* <a href={`#/asset/${toHex(e.id)}`}> */}
-                                                                            {this.state.pdf ? <Navigate to={`/asset/${toHex(e.id)}`} replace={true}  /> : undefined}
-                                                                                <Document 
-                                                                                    file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image?.split('//')[1]}`}
-                                                                                    onItemClick={()=> { this.setState({pdf: true}) }}
-                                                                                >
+                                                                    // e.tokenMetaData.mimeType == 'application/pdf' ?
+                                                                    //     <div>
+                                                                    //         {/* <a href={`#/asset/${toHex(e.id)}`}> */}
+                                                                    //         {this.state.pdf ? <Navigate to={`/asset/${toHex(e.id)}`} replace={true}  /> : undefined}
+                                                                    //             <Document 
+                                                                    //                 file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image?.split('//')[1]}`}
+                                                                    //                 onItemClick={()=> { this.setState({pdf: true}) }}
+                                                                    //             >
                                                                                     
-                                                                                    <Thumbnail pageNumber={1} />
-                                                                                </Document>
-                                                                            {/* </a> */}
-                                                                        </div>
-                                                                        : undefined
+                                                                    //                 <Thumbnail pageNumber={1} />
+                                                                    //             </Document>
+                                                                    //         {/* </a> */}
+                                                                    //     </div>
+                                                                    //     : undefined
                                                                 }
                                                                 {
                                                                     e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                                         <div>
                                                                             <a href={`#/asset/${toHex(e.id)}`}>
-                                                                                <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
-
+                                                                                    <LazyLoadImage
+                                                                                        placeholder={<Loading />}
+                                                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
+                                                                                    /><br />
                                                                                 <audio controls style={{ width: '100%' }}>
                                                                                     <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                                                 </audio>
