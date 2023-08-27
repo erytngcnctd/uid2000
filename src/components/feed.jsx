@@ -9,9 +9,9 @@ import ReactMarkdown from 'react-markdown'
 import axios from 'axios'
 import '../App.css'
 
-function sleep(sleepDuration){
+function sleep(sleepDuration) {
     var now = new Date().getTime();
-    while(new Date().getTime() < now + sleepDuration){ /* Do nothing */ }
+    while (new Date().getTime() < now + sleepDuration) { /* Do nothing */ }
 }
 
 function toHex(d) {
@@ -163,6 +163,20 @@ export class Feed extends Component {
                                                         </a>
                                                     </div>
                                                 )}
+                                                {
+                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
+                                                        <div>
+                                                            <a href={`#/asset/${toHex(e.id)}`}>
+                                                                <LazyLoadImage
+                                                                    placeholder={<Loading />}
+                                                                    src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
+                                                                /><br />
+                                                                <audio controls style={{ width: '100%' }}>
+                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
+                                                                </audio>
+                                                            </a>
+                                                        </div> : undefined
+                                                }
                                             </div>
                                         )}
                                     </div>
