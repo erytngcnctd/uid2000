@@ -9,6 +9,10 @@ import ReactMarkdown from 'react-markdown'
 import axios from 'axios'
 import '../App.css'
 
+function sleep(sleepDuration){
+    var now = new Date().getTime();
+    while(new Date().getTime() < now + sleepDuration){ /* Do nothing */ }
+}
 
 function toHex(d) {
     return (Number(d).toString(16)).slice(-2).toUpperCase()
@@ -118,6 +122,7 @@ export class Feed extends Component {
                 mediaElement.setAttribute('preload', 'auto'); // Preload the video
                 mediaElement.load(); // Load the video
             }
+            sleep(0.15)
         });
     }
 
