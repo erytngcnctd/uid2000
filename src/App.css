@@ -21,6 +21,7 @@ a.button {
     height: 15px;
     text-decoration: none;
     border-style: solid;
+    background-color: white;
 }
 
 a.button:hover {}

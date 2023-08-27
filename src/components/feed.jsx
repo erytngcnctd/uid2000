@@ -18,7 +18,7 @@ const metadata = async (offset) => {
     const tokensQuery = `
     query 
       {
-        tokens(first : 8, skip : ${offset}, where : {tokenMetaData_: {mimeType_not: ""}, editions_gt: "0"}, orderBy: timestamp,  orderDirection: desc ) {
+        tokens(first : 8, skip : ${offset}, where : {tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain"]}, editions_gt: "0"}, orderBy: timestamp,  orderDirection: desc ) {
             id
             tokenMetaData {
               mimeType
@@ -70,10 +70,9 @@ export class Feed extends Component {
         arr: [],
         loading: true,
         pdf: false,
-        offset: 0
+        offset: 0,
+        mediaLoadedCount: 0
     }
-
-    componentWillMount = async () => this.setState({ arr: (await metadata(this.state.offset)).slice(this.state.offset, this.state.offset + 8), loading: false })
 
     next = async () => {
         this.setState({ loading: true })
@@ -87,122 +86,100 @@ export class Feed extends Component {
         this.setState({ offset: this.state.offset - 8 })
     }
 
-    render() {
-        return (
-            <div><br />
-                {
-                    !this.state.loading ?
-                        <div className='row'><br />
+    async componentDidMount() {
+        await this.loadMetadataAndMedia();
+    }
 
-                            {
-                                this.state.arr.map(e => {
-                                    {
-                                        if (e !== undefined) {
-                                            return (
-                                                <div key={e.id} className='column'>
-                                                    {
-                                                        e.tokenMetaData.mimeType && e.tokenMetaData.mimeType != '' ?
-                                                            <div>
-                                                                {
-                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
-                                                                        <a href={`#/asset/${toHex(e.id)}`}>
-                                                                             <LazyLoadImage
-                                                                                // alt={image.alt}
-                                                                                placeholder={<Loading />}
-                                                                                src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
-                                                                            />
-                                                                            {/* <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /> */}
-                                                                        </a>
-                                                                        :
-                                                                        undefined
-                                                                }
-                                                                {
-                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
-                                                                        <div className='txt' style={{ maxWidth: '50vw' }}>
-                                                                            <a className='nostyle' href={`#/asset/${toHex(e.id)}`}>
-                                                                                <ReactMarkdown>
-                                                                                    {e.text}
-                                                                                </ReactMarkdown>
-                                                                            </a>
+    loadMetadataAndMedia = async () => {
+        const arr = await metadata(this.state.offset);
+        this.setState({ arr }, () => {
+            this.loadMedia();
+        });
+    }
 
-                                                                        </div>
-                                                                        : undefined
-                                                                }
-                                                                {
-                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'video' ?
-                                                                        <div>
-                                                                            <a href={`#/asset/${toHex(e.id)}`}>
-                                                                                <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
-                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`}></source>
-                                                                                </video>
-                                                                            </a>
-                                                                        </div> : undefined
-                                                                }
-                                                                {
-                                                                    // e.tokenMetaData.mimeType == 'application/pdf' ?
-                                                                    //     <div>
-                                                                    //         {/* <a href={`#/asset/${toHex(e.id)}`}> */}
-                                                                    //         {this.state.pdf ? <Navigate to={`/asset/${toHex(e.id)}`} replace={true}  /> : undefined}
-                                                                    //             <Document 
-                                                                    //                 file={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image?.split('//')[1]}`}
-                                                                    //                 onItemClick={()=> { this.setState({pdf: true}) }}
-                                                                    //             >
-                                                                                    
-                                                                    //                 <Thumbnail pageNumber={1} />
-                                                                    //             </Document>
-                                                                    //         {/* </a> */}
-                                                                    //     </div>
-                                                                    //     : undefined
-                                                                }
-                                                                {
-                                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
-                                                                        <div>
-                                                                            <a href={`#/asset/${toHex(e.id)}`}>
-                                                                                    <LazyLoadImage
-                                                                                        placeholder={<Loading />}
-                                                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
-                                                                                    /><br />
-                                                                                <audio controls style={{ width: '100%' }}>
-                                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
-                                                                                </audio>
-                                                                            </a>
-                                                                        </div> : undefined
-                                                                }
-                                                            </div>
-                                                            : undefined
-                                                    }
-                                                </div>
-                                            )
-                                        } else {
-                                            return undefined
-                                        }
-                                    }
-                                })
-                            }
-                        </div>
-                        :
-                        undefined
+    loadMedia = () => {
+        const { arr } = this.state;
+        let loadedMediaCount = 0;
+
+        arr.forEach(e => {
+            const mediaElement = e.tokenMetaData.mimeType.split('/')[0] === 'image' ? new Image() : document.createElement('video');
+
+            mediaElement.onload = () => {
+                loadedMediaCount++;
+                if (loadedMediaCount === arr.length) {
+                    this.setState({ loading: false });
                 }
+            };
+
+            if (e.tokenMetaData.mimeType.split('/')[0] === 'image') {
+                mediaElement.src = `https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`;
+            } else if (e.tokenMetaData.mimeType.split('/')[0] === 'video') {
+                mediaElement.src = `https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`;
+                mediaElement.setAttribute('preload', 'auto'); // Preload the video
+                mediaElement.load(); // Load the video
+            }
+        });
+    }
+
+    render() {
+        const { arr, loading } = this.state;
+
+        return (
+            <div>
+                <br />
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <div className='row'>
+                        <br />
+                        {arr.map(e => (
+                            <div key={e.id} className='column'>
+                                {e !== undefined && (
+                                    <div>
+                                        {e.tokenMetaData.mimeType && e.tokenMetaData.mimeType !== '' && (
+                                            <div>
+                                                {e.tokenMetaData.mimeType.split('/')[0] === 'image' && (
+                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                        <img
+                                                            src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
+                                                        />
+                                                    </a>
+                                                )}
+                                                {e.tokenMetaData.mimeType.split('/')[0] === 'video' && (
+                                                    <div>
+                                                        <a href={`#/asset/${toHex(e.id)}`}>
+                                                            <video
+                                                                autoPlay={"autoplay"}
+                                                                loop
+                                                                muted
+                                                                style={{ maxWidth: '50vw' }}>
+                                                                <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`}></source>
+                                                            </video>
+                                                        </a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
                 <>
-                    <span style={{ marginLeft : '45%', position : 'absolute' }}>
-                        {
-                            this.state.offset != 0 ?
-                                <a className='style' onClick={this.previous} href='#/'>
-                                    &#60;&#60;&#60;
-                                </a>
-                                :
-                                undefined
-                        }
+                    <div style={{ position: 'fixed', bottom: 0, left: '45%' }}>
+                        {this.state.offset !== 0 && (
+                            <a className='button style' onClick={this.previous} href='#/'>
+                                &#60;&#60;&#60;
+                            </a>
+                        )}
                         &nbsp;
-                        {
-                            this.state.arr.length != 0 ?
-                                <a className='style' onClick={this.next} href='#/'>
-                                    &#62;&#62;&#62;
-                                </a>
-                                :
-                                undefined
-                        }
-                    </span><br /><br />
+                        {this.state.arr.length !== 0 && (
+                            <a className='button style' onClick={this.next} href='#/'>
+                                &#62;&#62;&#62;
+                            </a>
+                        )}
+                    </div>
                 </>
             </div>
         )
