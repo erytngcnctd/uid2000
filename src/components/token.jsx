@@ -1,9 +1,8 @@
 import "../App.css"
 import React, { Component } from 'react'
 import { createClient, cacheExchange, fetchExchange } from 'urql'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { UngrundContext } from '../context/UngrundContext'
-import { Loading } from './load'
+// import { Loading } from './load'
 import { Swap } from './swap'
 import { Burn } from './burn'
 import { Transfer } from './transfer'
@@ -250,10 +249,7 @@ export class Token extends Component {
                                 }
                                 {
                                     this.state.token[0].tokenMetaData.mimeType?.split('/')[0] == 'image' ?
-                                        <LazyLoadImage
-                                            placeholder={<Loading />}
-                                            src={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].tokenMetaData.image.split('//')[1]}`} 
-                                        />
+                                        <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].tokenMetaData.image.split('//')[1]}`} />
                                         :
                                         undefined
                                 }
@@ -281,10 +277,7 @@ export class Token extends Component {
                                 {
                                     this.state.token[0].tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                         <div style={{ maxWidth: '50vw' }}>
-                                           <LazyLoadImage
-                                                placeholder={<Loading />}
-                                                src={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].tokenMetaData.image.split('//')[1]}`} 
-                                             /><br/>
+                                            <img src={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].tokenMetaData.image.split('//')[1]}`} /><br />
                                             <audio controls>
                                                 <source src={`https://cloudflare-ipfs.com/ipfs/${this.state.token[0].tokenMetaData.animation_url.split('//')[1]}`} />
                                             </audio>

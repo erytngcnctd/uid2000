@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
 // import { Document, Page, Thumbnail, pdfjs } from 'react-pdf'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
+// import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { createClient, cacheExchange, fetchExchange } from 'urql/core'
 // import { Navigate } from "react-router-dom"
 import { Loading } from './load'
@@ -75,7 +75,7 @@ export class Feed extends Component {
         loading: true,
         pdf: false,
         offset: 0,
-        mediaLoadedCount: 0
+        // mediaLoadedCount: 0
     }
 
     next = async () => {
@@ -167,10 +167,7 @@ export class Feed extends Component {
                                                     e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                         <div>
                                                             <a href={`#/asset/${toHex(e.id)}`}>
-                                                                <LazyLoadImage
-                                                                    placeholder={<Loading />}
-                                                                    src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
-                                                                /><br />
+                                                                   <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
                                                                 <audio controls style={{ width: '100%' }}>
                                                                     <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                                 </audio>

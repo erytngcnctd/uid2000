@@ -1,7 +1,6 @@
 import axios from 'axios'
 import React, { Component } from 'react'
 import { createClient, cacheExchange, fetchExchange } from 'urql/core'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { UngrundContext } from '../context/UngrundContext'
 // import { Document, Page, pdfjs } from 'react-pdf'
 import ReactMarkdown from 'react-markdown'
@@ -190,7 +189,7 @@ export class Assets extends Component {
         })
 
         // console.log(aux)
-        aux = await aux.map(async e => {
+        aux = await aux?.map(async e => {
             if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`).then(res => res.data)
             return e
         })
@@ -273,10 +272,7 @@ console.log(aux)
                                                         {
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'image' ?
                                                                 <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
-                                                                    <LazyLoadImage
-                                                                        placeholder={<Loading />}
-                                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
-                                                                    />
+                                                                    <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                 </a>
                                                                 :
                                                                 undefined
@@ -306,10 +302,7 @@ console.log(aux)
                                                             e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                                 <div>
                                                                     <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
-                                                                        <LazyLoadImage
-                                                                            placeholder={<Loading />}
-                                                                            src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
-                                                                        /><br/>
+                                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                                         <audio controls style={{ width: '100%' }}>
                                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                                         </audio>

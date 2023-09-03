@@ -1,10 +1,9 @@
 import { useContext, useState, useEffect } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
 import { createClient, cacheExchange, fetchExchange } from 'urql'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
 // import { Document, Page, pdfjs } from 'react-pdf'
 import ReactMarkdown from 'react-markdown'
-import { Loading } from './load'
+// import { Loading } from './load'
 // import { findHashtags } from 'find-hashtags'
 import { _ } from 'lodash'
 import axios from 'axios'
@@ -120,10 +119,7 @@ export const Search = () => {
                                         {
                                             e.tokenMetaData?.mimeType.split('/')[0] == 'image' ?
                                                 <a href={`#/asset/${toHex(e.id)}`}>
-                                                    <LazyLoadImage
-                                                        placeholder={ <Loading /> }
-                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
-                                                    />
+                                                    <img variant="top" src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                 </a>
                                                 :
                                                 undefined
@@ -153,10 +149,7 @@ export const Search = () => {
                                             e.tokenMetaData?.mimeType.split('/')[0] == 'audio' ?
                                                 <div>
                                                     <a href={`#/asset/${toHex(e.id)}`}>
-                                                    <LazyLoadImage
-                                                        placeholder={<Loading />}
-                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} 
-                                                    /><br/>
+                                                        <img src={`https://ipfs.io/ipfs/${e.tokenMetaData.image.split('//')[1]}`} />
                                                         <audio controls>
                                                             <source src={`https://ipfs.io/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                         </audio>
