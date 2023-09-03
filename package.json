@@ -19,6 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.7",
+    "react-masonry-css": "^1.0.16",
     "react-pdf": "^7.1.2",
     "react-router": "^6.14.1",
     "react-router-dom": "^6.14.1",

@@ -6,8 +6,18 @@ import { createClient, cacheExchange, fetchExchange } from 'urql/core'
 // import { Navigate } from "react-router-dom"
 import { Loading } from './load'
 import ReactMarkdown from 'react-markdown'
+import Masonry from 'react-masonry-css'
 import axios from 'axios'
 import '../App.css'
+
+const breakpoints = {
+    default: 5,
+    1200: 5,
+    900: 4,
+    750: 3,
+    600: 2,
+    450: 1
+}
 
 function sleep(sleepDuration) {
     var now = new Date().getTime();
@@ -122,81 +132,82 @@ export class Feed extends Component {
                 mediaElement.setAttribute('preload', 'auto'); // Preload the video
                 mediaElement.load(); // Load the video
             }
+            e.media = mediaElement
             sleep(0.15)
         });
     }
 
     render() {
         const { arr, loading } = this.state;
-
         return (
+
             <div>
-                <br />
-                {loading ? (
-                    <Loading />
-                ) : (
-                    <div className='row'>
-                        <br />
-                        {arr.map(e => (
-                            <div key={e.id} className='column'>
-                                {e !== undefined && (
-                                    <div>
-                                        {e.tokenMetaData.mimeType && e.tokenMetaData.mimeType !== '' && (
-                                            <div>
-                                                {e.tokenMetaData.mimeType.split('/')[0] === 'image' && (
+                { 
+                    loading ?  <Loading />
+                    : <Masonry
+                        breakpointCols={breakpoints}
+                        className='grid'
+                        columnClassName='column'
+                    >
+
+                        { arr.map(e => (
+                            e !== undefined && 
+                                e.tokenMetaData?.mimeType && 
+                                        (
+                                            e.tokenMetaData.mimeType.split('/')[0] === 'image' ? 
+                                                <a href={`#/asset/${toHex(e.id)}`}>
+                                                    <img
+                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
+                                                    />
+                                                </a>
+                                            :
+                                            e.tokenMetaData.mimeType.split('/')[0] === 'video' ? 
+                                                <a href={`#/asset/${toHex(e.id)}`}>
+                                                    <video
+                                                        autoPlay={"autoplay"}
+                                                        loop
+                                                        muted
+                                                        style={{ maxWidth: '50vw' }}>
+                                                        <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`}></source>
+                                                    </video>
+                                                </a>
+                                            : 
+                                            e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
+                                                <a className='nostyle' href={`#/asset/${toHex(e.id)}`}>
+                                                    <ReactMarkdown>
+                                                        {e.text}
+                                                    </ReactMarkdown>
+                                                </a>
+                                            :
+                                            e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
                                                     <a href={`#/asset/${toHex(e.id)}`}>
-                                                        <img
-                                                            src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
-                                                        />
+                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
+                                                        <audio controls style={{ width: '100%' }}>
+                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
+                                                        </audio>
                                                     </a>
-                                                )}
-                                                {e.tokenMetaData.mimeType.split('/')[0] === 'video' && (
-                                                    <div>
-                                                        <a href={`#/asset/${toHex(e.id)}`}>
-                                                            <video
-                                                                autoPlay={"autoplay"}
-                                                                loop
-                                                                muted
-                                                                style={{ maxWidth: '50vw' }}>
-                                                                <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`}></source>
-                                                            </video>
-                                                        </a>
-                                                    </div>
-                                                )}
-                                                {
-                                                    e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
-                                                        <div>
-                                                            <a href={`#/asset/${toHex(e.id)}`}>
-                                                                   <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
-                                                                <audio controls style={{ width: '100%' }}>
-                                                                    <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
-                                                                </audio>
-                                                            </a>
-                                                        </div> : undefined
-                                                }
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-                <>
-                    <div style={{ position: 'fixed', bottom: 0, left: '45%' }}>
-                        {this.state.offset !== 0 && (
-                            <a className='button style' onClick={this.previous} href='#/'>
-                                &#60;&#60;&#60;
-                            </a>
-                        )}
-                        &nbsp;
-                        {this.state.arr.length !== 0 && (
-                            <a className='button style' onClick={this.next} href='#/'>
-                                &#62;&#62;&#62;
-                            </a>
-                        )}
-                    </div>
-                </>
+                                            
+                                            :
+                                            undefined
+                                        )
+                                    ))}
+                                    
+                        <div style={{ position: 'fixed', bottom: 0, left: '45%' }}>
+                            {this.state.offset !== 0 && (
+                                <a className='button style' onClick={this.previous} href='#/'>
+                                    &#60;&#60;&#60;
+                                </a>
+                            )}
+                            &nbsp;
+                            {this.state.arr.length !== 0 && (
+                                <a className='button style' onClick={this.next} href='#/'>
+                                    &#62;&#62;&#62;
+                                </a>
+                            )}
+                        </div>
+
+                    </Masonry>    
+                }
             </div>
         )
     }
