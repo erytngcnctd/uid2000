@@ -43,7 +43,6 @@ export default defineConfig({
               'react',
               'react-router-dom',
               'react-dom',
-              'react-lazy-load-image-component',
               'react-markdown'
             ],
           },
