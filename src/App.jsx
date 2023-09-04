@@ -1,7 +1,7 @@
 import './App.css'
 import { React, useEffect } from 'react'
 import UngrundContextProvider from './context/UngrundContext'
-import { Feed } from './components/feed'
+import  Feed  from './components/feed'
 import { Mint } from './components/mint'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Header } from './components/header'

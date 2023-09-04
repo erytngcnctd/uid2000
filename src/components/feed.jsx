@@ -3,7 +3,7 @@ import { UngrundContext } from '../context/UngrundContext'
 // import { Document, Page, Thumbnail, pdfjs } from 'react-pdf'
 // import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { createClient, cacheExchange, fetchExchange } from 'urql/core'
-// import { Navigate } from "react-router-dom"
+import { withRouter } from './router'
 import { Loading } from './load'
 import ReactMarkdown from 'react-markdown'
 import Masonry from 'react-masonry-css'
@@ -32,15 +32,18 @@ const metadata = async (offset) => {
     const tokensQuery = `
     query 
       {
-        tokens(first : 8, skip : ${offset}, where : {tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain"]}, editions_gt: "0"}, orderBy: timestamp,  orderDirection: desc ) {
+        tokens(first : 21, skip : ${offset}, where : {tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain"]}, editions_gt: "0"}, orderBy: timestamp,  orderDirection: desc ) {
             id
             tokenMetaData {
               mimeType
               image
               animation_url
+              description
+              name
             }
             metaDataUri
             creator
+            editions
         }
     }`
 
@@ -67,12 +70,13 @@ const metadata = async (offset) => {
 
 }
 
-export class Feed extends Component {
+class Feed extends Component {
 
     static contextType = UngrundContext
 
     constructor(props) {
         super(props);
+        this.select = this.select.bind(this)
         // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
         // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
         //     'pdfjs-dist/build/pdf.worker.min.js',
@@ -85,29 +89,41 @@ export class Feed extends Component {
         loading: true,
         pdf: false,
         offset: 0,
+        directory: false,
+        width: window.innerWidth
         // mediaLoadedCount: 0
     }
 
     next = async () => {
         this.setState({ loading: true })
         this.setState({ arr: await metadata(this.state.offset + 8), loading: false })
-        this.setState({ offset: this.state.offset + 8 })
+        this.setState({ offset: this.state.offset + 21 })
     }
 
     previous = async () => {
         this.setState({ loading: true })
         this.setState({ arr: await metadata(this.state.offset - 8), loading: false })
-        this.setState({ offset: this.state.offset - 8 })
+        this.setState({ offset: this.state.offset - 21 })
     }
 
     async componentDidMount() {
         await this.loadMetadataAndMedia();
+        window.addEventListener('resize', this.handleResize);
     }
 
+    componentWillUnmount () {
+        window.removeEventListener('resize', this.handleResize);
+      }
+
+    handleResize = async ()=>  {
+        this.setState({ width: window.innerWidth})
+    }
+      
     loadMetadataAndMedia = async () => {
         const arr = await metadata(this.state.offset);
         this.setState({ arr }, () => {
-            this.loadMedia();
+            // this.loadMedia();
+            this.setState({ loading: false });
         });
     }
 
@@ -137,32 +153,71 @@ export class Feed extends Component {
         });
     }
 
-    render() {
-        const { arr, loading } = this.state;
-        return (
+    select = (path) => {
+        this.props.navigate(path)
+    }
 
-            <div>
+    render() {
+        const { arr, loading, directory, width } = this.state;
+
+        return (
+            <div>   
+
+                {
+                    !loading && <div style={{
+                    width:'99vw', 
+                    position: 'fixed', 
+                    paddingTop: width < 350 ? '3vw' : '',
+                    textAlign: 'right'}}
+                    onClick={()=> this.setState({ directory: !directory })}
+                    >
+                        {!directory ? '╬' : '═'}
+                </div>
+                }
+
+                <br/><br/>
                 { 
-                    loading ?  <Loading />
-                    : <Masonry
+                    loading ? <Loading />
+                    : directory ? 
+                    <table>
+                        <tbody>
+                            { 
+                                arr.map((e,i)=> (
+                                    <tr key= {i} onClick={() => this.select(`/asset/${toHex(e.id)}`)} 
+                                           className='directory' style={{width:'100vw'}}>
+                                            
+                                        <td style={{textDecoration: 'underline'}}>{e.tokenMetaData?.name || 'untitled'}</td> 
+                                        {width > 600 && <td>{e.tokenMetaData?.description || ''}</td>}
+                                        {width > 300 && <td>{`${e.editions}_ed.` || ''}</td>}
+                                        {width > 400 && <td>{e.tokenMetaData?.mimeType || ''}</td> }
+                                        {/* <td>{toHex(e.id)}</td>  */}
+                                        <td style={{textDecoration: 'underline'}}> {
+                                          e.creator.slice(0, 7)}...{e.creator.slice(e.creator.length - 5, e.creator.length)}
+                                        </td> 
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+                    :
+                    <Masonry
                         breakpointCols={breakpoints}
                         className='grid'
                         columnClassName='column'
                     >
-
-                        { arr.map(e => (
+                        { arr.map((e,i) => (
                             e !== undefined && 
                                 e.tokenMetaData?.mimeType && 
                                         (
                                             e.tokenMetaData.mimeType.split('/')[0] === 'image' ? 
-                                                <a href={`#/asset/${toHex(e.id)}`}>
+                                                <a key={i} href={`#/asset/${toHex(e.id)}`}>
                                                     <img
                                                         src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
                                                     />
                                                 </a>
                                             :
                                             e.tokenMetaData.mimeType.split('/')[0] === 'video' ? 
-                                                <a href={`#/asset/${toHex(e.id)}`}>
+                                                <a key={i} href={`#/asset/${toHex(e.id)}`}>
                                                     <video
                                                         autoPlay={"autoplay"}
                                                         loop
@@ -173,14 +228,14 @@ export class Feed extends Component {
                                                 </a>
                                             : 
                                             e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
-                                                <a className='nostyle' href={`#/asset/${toHex(e.id)}`}>
+                                                <a key={i} className='nostyle' href={`#/asset/${toHex(e.id)}`}>
                                                     <ReactMarkdown>
                                                         {e.text}
                                                     </ReactMarkdown>
                                                 </a>
                                             :
                                             e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
-                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                    <a key={i} href={`#/asset/${toHex(e.id)}`}>
                                                         <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
                                                         <audio controls style={{ width: '100%' }}>
                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
@@ -190,25 +245,29 @@ export class Feed extends Component {
                                             :
                                             undefined
                                         )
-                                    ))}
-                                    
-                        <div style={{ position: 'fixed', bottom: 0, left: '45%' }}>
-                            {this.state.offset !== 0 && (
-                                <a className='button style' onClick={this.previous} href='#/'>
-                                    &#60;&#60;&#60;
-                                </a>
-                            )}
-                            &nbsp;
-                            {this.state.arr.length !== 0 && (
-                                <a className='button style' onClick={this.next} href='#/'>
-                                    &#62;&#62;&#62;
-                                </a>
-                            )}
-                        </div>
-
+                                    )
+                                )
+                            }
                     </Masonry>    
                 }
+
+                <div style={{ position: 'fixed', bottom: 0, left: '45%' }}>
+                    {this.state.offset !== 0 && (
+                        <a className='button style' onClick={this.previous} href='#/'>
+                            &#60;&#60;&#60;
+                        </a>
+                    )}
+                    &nbsp;
+                    {this.state.arr.length !== 0 && (
+                        <a className='button style' onClick={this.next} href='#/'>
+                            &#62;&#62;&#62;
+                        </a>
+                    )}
+                </div>
+
             </div>
         )
     }
 }
+
+export default withRouter(Feed);

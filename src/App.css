@@ -26,6 +26,18 @@ a.button {
 
 a.button:hover {}
 
+.directory {
+    color : black;
+    width : 100vw;
+}
+
+.directory:hover {
+    text-decoration: none;
+    cursor: pointer;
+    color : white;
+    background-color: black;
+}
+
 video {}
 
 img {
