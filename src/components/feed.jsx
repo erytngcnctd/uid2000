@@ -96,13 +96,13 @@ class Feed extends Component {
 
     next = async () => {
         this.setState({ loading: true })
-        this.setState({ arr: await metadata(this.state.offset + 8), loading: false })
+        this.setState({ arr: await metadata(this.state.offset + 21), loading: false })
         this.setState({ offset: this.state.offset + 21 })
     }
 
     previous = async () => {
         this.setState({ loading: true })
-        this.setState({ arr: await metadata(this.state.offset - 8), loading: false })
+        this.setState({ arr: await metadata(this.state.offset - 21), loading: false })
         this.setState({ offset: this.state.offset - 21 })
     }
 
