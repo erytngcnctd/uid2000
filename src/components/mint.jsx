@@ -100,7 +100,7 @@ export const Mint = () => {
 
         }
 
-        if (hashtags?.length > 0) obj.attributes = hashtags.map(e => { return { 'value': e } })
+        // if (hashtags?.length > 0) obj.attributes = hashtags.map(e => { return { 'value': e } })
         if (file.type != undefined) {
             obj.mimeType = file.type
         }
