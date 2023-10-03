@@ -134,10 +134,17 @@ export const Defi = () => {
         <div>
             <div>
                 <br />
+                notice: this feature is specifically experimental and soon will pass through contracts updates/deprecation
+                <br />
+                <br />
+                <a className="button style" style={{ cursor : "pointer" }}>manage liquidity</a>
+                <a className="button style" style={{ cursos : "pointer" }}>stake</a>
+                <br />
+                <br />
                 <input type="text" placeholder="0" id="dx" value={dx} onChange={(e) => { setDx(e.target.value) }} />
                 {directional ? <span>MATIC</span> : <span>███</span>}
                 <br />
-                <a className="button style" style={{ cursor: 'pointer', marginLeft: '172px' }} onClick={() => setDirectional(!directional)}>⇅</a>
+                <a className="button style" style={{ cursor: 'pointer' }} onClick={() => setDirectional(!directional)}>⇅</a>
                 <br />
                 <GetDy _directional={directional} _dx={dx} />
                 {/* slippage warning */}

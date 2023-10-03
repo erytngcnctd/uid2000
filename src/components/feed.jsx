@@ -157,6 +157,12 @@ class Feed extends Component {
         this.props.navigate(path)
     }
 
+    handleView = e => {
+        console.log(e)
+        if (e == 'icon') this.setState({ directory : false })
+        if (e == 'list') this.setState({ directory : true })
+    }
+
     render() {
         const { arr, loading, directory, width } = this.state;
 
@@ -169,9 +175,12 @@ class Feed extends Component {
                     position: 'fixed', 
                     paddingTop: width < 350 ? '3vw' : '',
                     textAlign: 'right'}}
-                    onClick={()=> this.setState({ directory: !directory })}
                     >
-                        {!directory ? '╬' : '═'}
+                        <label for="cars">views:</label>
+                        <select name="view" onChange={e => this.handleView(e.target.value)}>
+                            <option value="icon">◻ icons</option>
+                            <option value="list">☰ list</option>
+                        </select>
                 </div>
                 }
 
