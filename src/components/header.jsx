@@ -1,7 +1,7 @@
 import React, { Component, useState } from 'react'
 import { UngrundContext } from '../context/UngrundContext'
 import { Search } from './search'
-import { disconnect,connect } from '@wagmi/core'
+import { disconnect, connect } from '@wagmi/core'
 import { getAccount, getContract } from '@wagmi/core'
 import { SyncButton } from './sync/'
 import icon from '../media/favicon.jpeg';
@@ -34,9 +34,10 @@ export class Header extends Component {
     componentWillMount = async () => {
 
         //console.log(window.location.hash.split('/')[1])
+        this.setState({ path: window.location.pathname })
         this.context.setSelected(window.location.hash.split('/')[1])
 
-        this.context.setAccount(localStorage.getItem('account') || null , localStorage.getItem('sync') || null)
+        this.context.setAccount(localStorage.getItem('account') || null, localStorage.getItem('sync') || null)
 
         window.crypto.subtle.generateKey(
             {
@@ -125,55 +126,40 @@ export class Header extends Component {
 
     handleChange = e => this.setState({ [e.target.name]: e.target.value })
 
-    render() {  
+    render() {
         return (
             <div style={{ position: 'sticky', top: 0, left: 0, width: '100%', zIndex: 1, background: 'white' }}>
                 <div style={{ /* borderBottom: 'solid', */ height: '50px' }}>
-                {/* {
-                            !this.context.sync || !this.context.account ?
-                                <span style={{ float: 'right', marginTop: '15px' }}>
-                                    <a className='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={this.sync}>sync</a>
-                                </span>
-                                :
-                                <div style={{ display: 'inline' }}>
-                                    <span style={{ float: 'right', marginTop: '15px' }}>
-                                        {this.context.account.slice(0, 7)}...{this.context.account.slice(this.context.account.length - 5, this.context.account.length)}
-                                    </span>
-                                    <span style={{ float: 'right', marginTop: '15px' }}>
-                                        <a className='style' style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => this.unsync()}>unsync</a>
-                                    </span>
-                                </div>
-                        } */}
-                        <SyncButton /> 
-                    <div>
-                        {/* <span> <img src={icon} alt="███" /></span> */}
-                        <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }}>███</a></span>
-                        {
-                            /*                         <span style={{ float: 'right', marginTop: '5px' }}>
-                                <a className='style' style={{ fontSize: '25px', textDecoration: 'none',  cursor: 'pointer' }}>≡</a>
-                            </span> */
-                        }
-
-                        {
-                            //this.context.selected != 'config' && this.context.selected != 'about' && this.context.selected != 'publish' && this.context.selected != 'exchange' ?
-                                <div style={{ paddingTop: '50px' }}>
-                                    <input type="text" name="search" placeholder="search ↵" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
-                                </div>
-                            //    :
-                            //    undefined
-                        }
-                    </div>
+                    <SyncButton />
+                    {this.context.selected == undefined ?
+                        undefined :
+                        <div>
+                            <span><a href='#/' style={{ marginTop: '7.5px', zIndex: 1, position: 'absolute', fontSize: '25px', cursor: 'pointer' }} onClick={() => this.context.setSelected(undefined)}>███</a></span>
+                            <div style={{ paddingTop: '50px' }}>
+                                <input type="text" name="search" placeholder="search ↵" onChange={this.handleChange} onKeyPress={this.handleKey}></input>
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div style={{  paddingTop: '35px' }}>
+                {this.context.selected == undefined ?
+                undefined :
+                <div style={{ paddingTop: '35px' }}>
                     <span>
-                        <a className='style' onClick={() => this.context.setSelected(undefined)} href='#/'> {/* filters ? */}
+                        <a className='style' onClick={() => this.context.setSelected('feed')} href='#/feed'> {/* filters ? */}
                             feed
                         </a>&nbsp;&nbsp;
                         <a className='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
                             publish
                         </a>&nbsp;&nbsp;
+                        {/*                         <a className='style' onClick={() => this.context.setSelected('analytics')} href='#/analytics'>
+                            analytics
+                        </a>&nbsp;&nbsp; 
+*/}
                         {this.context.account ?
                             <span>
+                                <a className='style' onClick={() => this.context.setSelected('defi')} href='#/defi'>
+                                    DeFi
+                                </a>&nbsp;&nbsp;
                                 <a className='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
                                     assets
                                 </a>&nbsp;&nbsp;
@@ -190,17 +176,17 @@ export class Header extends Component {
                             {/*                             network:
                             <select style={{ border: 'none', fontFamily: 'monospace' }}>
                                 <option value='0'>polygon</option>
-                            </select> */}
+                            </select> 
+                            */}
                             {/*
-                             <option value='1'>fantom</option>
+                            <option value='1'>fantom</option>
                             <option value='2'>avax</option>
                             <option value='3'>aurora</option>
                             <option value='4'>near</option>
                             <option value='5'>ethereum</option>
                             <option value='6'>bnb</option>
-                                <option value='7'>xDAI</option>
-                                */}
-
+                            <option value='7'>xDAI</option>
+                            */}
                         </span>
                         {/*                         {
                             this.context.selected == 'mint' ?
@@ -220,6 +206,7 @@ export class Header extends Component {
                         <a href='collections'></a> */}
                     </span>
                 </div>
+    }
             </div>
         )
     }

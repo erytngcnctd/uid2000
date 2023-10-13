@@ -11,6 +11,7 @@ import { Assets } from './components/assets'
 import { Exchange } from './components/exchange'
 import { Search } from './components/search'
 import { Tags } from './components/tags'
+import { Landing } from './components/landing'
 import { Config } from './components/config'
 import { Swap } from './components/swap'
 import { Defi } from './components/defi'
@@ -42,7 +43,8 @@ function App() {
           <Header />
           <HashRouter>
             <Routes>
-              <Route exact path='/' element={ <Feed />} />
+              <Route exact path='/' element={ <Landing />} />
+              <Route exact path='/feed' element={ <Feed />} />
               <Route exact path='/publish' element={ <Mint/> } />
               <Route path='/search' element={ <Search/>} />
               <Route exact path='/tag/:id' element={ <Tags/> } />
@@ -51,7 +53,7 @@ function App() {
               <Route exact path='/config' element={ <Config /> } />
               <Route exact path='/:id' element={ <Assets/> } />
               <Route exact path='/search/:id' element={ <Search/> } />
-              <Route exact path='/exchange' element={ <Defi /> } />
+              <Route exact path='/defi' element={ <Defi /> } />
             </Routes>
           </HashRouter>
         </UngrundContextProvider>

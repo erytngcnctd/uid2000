@@ -134,7 +134,7 @@ export const Defi = () => {
         <div>
             <div>
                 <br />
-                notice: this feature is specifically experimental and soon will pass through contracts updates/deprecation
+                notice: specifically this feature is still experimental and soon will pass through contracts updates/deprecation
                 <br />
                 <br />
                 <a className="button style" style={{ cursor : "pointer" }}>manage liquidity</a>
