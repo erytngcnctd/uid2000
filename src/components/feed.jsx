@@ -167,10 +167,11 @@ class Feed extends Component {
                     paddingTop: width < 350 ? '3vw' : '',
                     textAlign: 'right'}}
                     >
-                        <label for="cars">views:</label>
+                        <label for="views">views:</label>
                         <select name="view" onChange={e => this.handleView(e.target.value)}>
                             <option value="icon">◻ icons</option>
                             <option value="list">☰ list</option>
+                            <option value="doom">∞ doom</option>
                         </select>
                 </div>
                 }

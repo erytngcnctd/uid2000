@@ -163,8 +163,8 @@ export class Header extends Component {
                                 <a className='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
                                     assets
                                 </a>&nbsp;&nbsp;
-                                <a className='style' onClick={() => this.context.setSelected('config')} href='#/config'>
-                                    config
+                                <a className='style' onClick={() => this.context.setSelected('config')} href='#/uuid'>
+                                    uuid
                                 </a>&nbsp;&nbsp;
                             </span>
                             : undefined

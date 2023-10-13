@@ -201,8 +201,8 @@ export const Mint = () => {
                                 <input type="text" placeholder="title" name="title" onChange={(e)=>setTitle(e.target.value)} /><br />
                                 <input type="text" placeholder="description" name="description" onChange={(e)=>setDescription(e.target.value)} /><br />
                                 {/* <input type="text" placeholder="#hashtags" name="hashtags" onChange={(e)=>setHashTags(findHashtags(e.target.value))} /><br /> */}
-                                <input type="text" placeholder="amount" name="amount" onChange={(e)=>setAmount(e.target.value)} /><br />
-                                <input type="text" placeholder="royalties" name="royalties" onChange={(e)=>setRoyalties(e.target.value)} /><br />
+                                editions: <input type="text" placeholder="amount" name="amount" onChange={(e)=>setAmount(e.target.value)} /><br />
+                                {/* <input type="text" placeholder="royalties" name="royalties" onChange={(e)=>setRoyalties(e.target.value)} /><br /> */}
                                 <br/>
                                 <input type="file" name="file" onChange={onFileUpload} />
                                 {

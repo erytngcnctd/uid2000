@@ -57,8 +57,8 @@ export const Landing = () => {
                             <a className='style' onClick={() => setSelected('assets')} href={`#/${account}`}>
                                 assets
                             </a>&nbsp;&nbsp;
-                            <a className='style' onClick={() => setSelected('config')} href='#/config'>
-                                config
+                            <a className='style' onClick={() => setSelected('config')} href='#/uuid'>
+                                uuid
                             </a>&nbsp;&nbsp;
                         </span>
                         : undefined

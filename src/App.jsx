@@ -50,7 +50,7 @@ function App() {
               <Route exact path='/tag/:id' element={ <Tags/> } />
               <Route exact path='/asset/:id' element={ <Token/> } />
               <Route exact path='/about' element={ <About /> } />
-              <Route exact path='/config' element={ <Config /> } />
+              <Route exact path='/uuid' element={ <Config /> } />
               <Route exact path='/:id' element={ <Assets/> } />
               <Route exact path='/search/:id' element={ <Search/> } />
               <Route exact path='/defi' element={ <Defi /> } />

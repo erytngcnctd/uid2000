@@ -15,6 +15,51 @@ let apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEY1N
 
 let client = new NFTStorage({ token: apiKey })
 
+const encrypt = async () => {
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt
+    // https://blog.secure-monkey.com/considerations-when-using-aes-gcm-for-encrypting-files/
+
+    console.log(await this.state.file.arrayBuffer())
+    console.log(ls.get('pk'))
+
+    let pk = window.crypto.subtle.importKey('jwk', ls.get('pk'), {   //these are the algorithm options
+        name: "RSA-OAEP",
+        hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+    },
+        false, // whether the key is extractable (i.e. can be used in exportKey)
+        ["encrypt"]).then(res => res)
+
+    let encrypted = window.crypto.subtle.encrypt('RSA-OAEP', await pk, Buffer.from(await this.state.file.arrayBuffer())).then(res => res)
+
+    console.log(await encrypted)
+    console.log(ls.get('sk'))
+
+    let sk = window.crypto.subtle.importKey('jwk', ls.get('sk'), {   // these are the algorithm options
+        name: "RSA-OAEP",
+        hash: { name: "SHA-256" }, // can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+    },
+        false, // whether the key is extractable (i.e. can be used in exportKey)
+        ["decrypt"]).then(res => res)
+
+    let decrypted = window.crypto.subtle.decrypt(
+        {
+            name: "RSA-OAEP",
+            //label: Uint8Array([...]) //optional
+        },
+        await sk, //from generateKey or importKey above
+        new Uint8Array(await encrypted) //ArrayBuffer of the data
+    )
+        .then(res => res)
+
+    console.log(await decrypted)
+    //console.log(Buffer.from((await new File([(await decrypted)], this.state.file.name, {type: this.state.file.type, lastModified: Date.now()}).arrayBuffer())))
+    //this.ipfsUpload(new File([(await decrypted)], this.state.file.name, { type: this.state.file.type, lastModified: Date.now() }))
+    //Uint8Array
+
+}
+
+
 // error handling  ??
 export const Config = () => {
 
@@ -67,8 +112,8 @@ export const Config = () => {
 
         loading ? <Loading /> :
             <div><br/>
-            <input type="text" placeholder="id" name="id" onChange={e => setId(e.target.value)}></input><br />
-            <input type="text" placeholder="description" name="description" onChange={e => setDescription(e.target.value)}></input><br />
+            <input type="text" placeholder="uuid" name="id" onChange={e => setId(e.target.value)}></input><br />
+            <input type="text" placeholder="bio" name="description" onChange={e => setDescription(e.target.value)}></input><br />
             {/*             <input type="text" placeholder="RPC" name="RPC"></input><br />
             <input type="text" placeholder="indexer" name="indexer"></input><br />
             <input type="checkbox" id="multiple" name="multiple" value="multiple"></input>
@@ -77,7 +122,7 @@ export const Config = () => {
             <label for="sensitive"> allow sensitive content</label><br/> */}
             {/*             <button>disable erc1155 permissions</button><br/>
             <button>disable erc20 permissions</button> */}
-            <a className='style button' style={{ cursor: 'pointer' }} onClick={async ()=> await ipfs()}>update ungrund identity</a>
+            <a className='style button' style={{ cursor: 'pointer' }} onClick={async ()=> await ipfs()}>save</a>
         </div>
 
     )
