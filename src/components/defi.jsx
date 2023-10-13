@@ -138,7 +138,7 @@ export const Defi = () => {
                 <br />
                 <br />
                 <a className="button style" style={{ cursor : "pointer" }}>manage liquidity</a>
-                <a className="button style" style={{ cursos : "pointer" }}>stake</a>
+                <a className="button style" style={{ cursor : "pointer" }}>stake</a>
                 <br />
                 <br />
                 <input type="text" placeholder="0" id="dx" value={dx} onChange={(e) => { setDx(e.target.value) }} />
