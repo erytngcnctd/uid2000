@@ -17,7 +17,7 @@ const assets = async (address) => {
     // available_not : "0"
     const tokensQuery = `query
     {
-        tokens(where: { editions_not : "0", creator : "${address}", tokenMetaData_: {mimeType_not: ""}}, orderBy: timestamp,  orderDirection: desc) {
+        tokens(where: { editions_not : "0", creator : "${address}", tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain", ""]}}, orderBy: timestamp,  orderDirection: desc) {
                   id
                   tokenMetaData {
                     mimeType
@@ -88,10 +88,9 @@ const collection = async (address, creations) => {
 
     // in - out + on sale
     // console.log(JSON.stringify(id_in))
-
     const metadata = `query
     {
-        uris ( where : { tokenId_in : ${JSON.stringify(id_in)}, tokenMetaData_: {mimeType_not: ""} }, orderBy: timestamp,  orderDirection: desc) {
+        uris ( where : { tokenId_in : ${JSON.stringify(id_in)}, tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain", ""]}}, orderBy: timestamp,  orderDirection: desc) {
           metaDataUri
           tokenId
           tokenMetaData{
@@ -205,7 +204,6 @@ export class Assets extends Component {
         this.setState({ loading: true })
 
         let aux = await assets(id)
-console.log(aux)
         aux = await aux.map(async e => {
             if (e.tokenMetaData.mimeType?.split('/')[0] == 'text') e.text = await axios.get(`https://cloudflare-ipfs.com/ipfs/${e.tokenMetadata.image.split('//')[1]}`).then(res => res.data)
             return e

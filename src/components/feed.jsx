@@ -6,18 +6,9 @@ import { createClient, cacheExchange, fetchExchange } from 'urql/core'
 import { withRouter } from './router'
 import { Loading } from './load'
 import ReactMarkdown from 'react-markdown'
-import Masonry from 'react-masonry-css'
 import axios from 'axios'
 import '../App.css'
 
-const breakpoints = {
-    default: 5,
-    1200: 5,
-    900: 4,
-    750: 3,
-    600: 2,
-    450: 1
-}
 
 function sleep(sleepDuration) {
     var now = new Date().getTime();
@@ -32,7 +23,7 @@ const metadata = async (offset) => {
     const tokensQuery = `
     query 
       {
-        tokens(first : 21, skip : ${offset}, where : {tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain"]}, editions_gt: "0"}, orderBy: timestamp,  orderDirection: desc ) {
+        tokens(first : 8, skip : ${offset}, where : {tokenMetaData_: {mimeType_not_in: ["application/pdf", "text/plain"]}, editions_gt: "0"}, orderBy: timestamp,  orderDirection: desc ) {
             id
             tokenMetaData {
               mimeType
@@ -208,72 +199,67 @@ class Feed extends Component {
                             }
                         </tbody>
                     </table>
-                    :
-                    <Masonry
-                        breakpointCols={breakpoints}
-                        className='grid'
-                        columnClassName='column'
-                    >
-                        { arr.map((e,i) => (
-                            e !== undefined && 
-                                e.tokenMetaData?.mimeType && 
-                                        (
-                                            e.tokenMetaData.mimeType.split('/')[0] === 'image' ? 
-                                                <a key={i} href={`#/asset/${toHex(e.id)}`}>
-                                                    <img
-                                                        src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
-                                                    />
-                                                </a>
-                                            :
-                                            e.tokenMetaData.mimeType.split('/')[0] === 'video' ? 
-                                                <a key={i} href={`#/asset/${toHex(e.id)}`}>
-                                                    <video
-                                                        autoPlay={"autoplay"}
-                                                        loop
-                                                        muted
-                                                        style={{ maxWidth: '50vw' }}>
-                                                        <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`}></source>
-                                                    </video>
-                                                </a>
-                                            : 
-                                            e.tokenMetaData.mimeType?.split('/')[0] == 'text' ?
-                                                <a key={i} className='nostyle' href={`#/asset/${toHex(e.id)}`}>
-                                                    <ReactMarkdown>
-                                                        {e.text}
-                                                    </ReactMarkdown>
-                                                </a>
-                                            :
-                                            e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
-                                                    <a key={i} href={`#/asset/${toHex(e.id)}`}>
-                                                        <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
+                    : (
+                    <div className='row'>
+                        <br />
+                        {arr.map(e => (
+                            <div key={e.id} className='column'>
+                                {e !== undefined && (
+                                    <div>
+                                        {e.tokenMetaData.mimeType && e.tokenMetaData.mimeType !== '' && (
+                                            <div>
+                                                {e.tokenMetaData.mimeType.split('/')[0] === 'image' && (
+                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                        <img
+                                                            src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`}
+                                                        />
+                                                    </a>
+                                                )}
+                                        {e.tokenMetaData.mimeType.split('/')[0] === 'video' && (
+                                                <div>
+                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                        <video
+                                                            autoPlay={"autoplay"}
+                                                            loop
+                                                            muted
+                                                            style={{ maxWidth: '50vw' }}>
+                                                            <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url?.split('//')[1]}`}></source>
+                                                        </video>
+                                                    </a>
+                                                </div>
+                                            )}
+                                            {e.tokenMetaData.mimeType?.split('/')[0] == 'audio' ?
+                                                <div>
+                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                            <img src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.image.split('//')[1]}`} /><br />
                                                         <audio controls style={{ width: '100%' }}>
                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                         </audio>
                                                     </a>
-                                            
-                                            :
-                                            undefined
-                                        )
-                                    )
-                                )
-                            }
-                    </Masonry>    
-                }
+                                                </div> : undefined
+                                            }
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <div style={{ position: 'fixed', bottom: 0, left: '45%' }}>
                     {this.state.offset !== 0 && (
-                        <a className='button style' onClick={this.previous} href='#/'>
+                        <a className='button style' onClick={this.previous} href='#/feed/'>
                             &#60;&#60;&#60;
                         </a>
                     )}
                     &nbsp;
                     {this.state.arr.length !== 0 && (
-                        <a className='button style' onClick={this.next} href='#/'>
+                        <a className='button style' onClick={this.next} href='#/feed/'>
                             &#62;&#62;&#62;
                         </a>
                     )}
                 </div>
-
             </div>
         )
     }

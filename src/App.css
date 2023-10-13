@@ -163,23 +163,3 @@ input {
         height: 100% !important;
     }
 }
-
-.grid {
-    display: -webkit-box; 
-    display: -ms-flexbox; 
-    display: flex;
-    align-items: flex-start;
-    flex-direction:row;
-    width: 99vw;
-    margin-top:8px;
-}
-
-.column {
-  position:relative;
-    background-clip: padding-box;
-  /* padding:10px; */
-}
-
-.column > * {
-    background-clip: padding-box;
-}
