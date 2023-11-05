@@ -119,7 +119,7 @@ const Exchange = props => {
     )
 }
 
-export const Defi = () => {
+export const Finance = () => {
     const [directional, setDirectional] = useState(true)
     const [dx, setDx] = useState(0)
 

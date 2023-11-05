@@ -7,7 +7,7 @@ export const Landing = () => {
     const [search, setSearch] = useState('');
     const { loading, setLoading, setMsg, path, setSelected, account } = useContext(UngrundContext)
 
-    useEffect(() => { setSelected(undefined)}, [])
+    useEffect(() => { setSelected(undefined) }, [])
 
     const handleKey = e => {
         if (e.key == 'Enter') {
@@ -49,20 +49,15 @@ export const Landing = () => {
                     <a className='style' onClick={() => setSelected('publish')} href='#/publish'>
                         publish
                     </a>&nbsp;&nbsp;
-                    {account ?
-                        <span>
-                            <a className='style' onClick={() => setSelected('defi')} href='#/defi'>
-                                DeFi
-                            </a>&nbsp;&nbsp;
-                            <a className='style' onClick={() => setSelected('assets')} href={`#/${account}`}>
-                                assets
-                            </a>&nbsp;&nbsp;
-                            <a className='style' onClick={() => setSelected('config')} href='#/uuid'>
-                                uuid
-                            </a>&nbsp;&nbsp;
-                        </span>
-                        : undefined
-                    }
+                    <a className='style' onClick={() => setSelected('finance')} href='#/finance'>
+                        finance
+                    </a>&nbsp;&nbsp;
+                    <a className='style' onClick={() => setSelected('assets')} href={`#/${account}`}>
+                        assets
+                    </a>&nbsp;&nbsp;
+                    <a className='style' onClick={() => setSelected('config')} href='#/uuid'>
+                        uuid
+                    </a>&nbsp;&nbsp;
                     <a className='style' onClick={() => setSelected('about')} href='#/about'>
                         about
                     </a>

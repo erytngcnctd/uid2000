@@ -49,7 +49,7 @@ const Approve = () => {
 
 const Transaction = ({ tokenId }) => {
     const { swapAbi, v1, erc1155 } = useContext(UngrundContext)
-    const [amount, setAmount] = useState(1)
+    const [amount, setAmount] = useState(0)
     const [value, setValue] = useState(0)
     const debouncedAmount = useDebounce(amount, 500)
     const debouncedValue = useDebounce(value, 500)
@@ -70,8 +70,8 @@ const Transaction = ({ tokenId }) => {
         <div><br />
             {
                 <div>
-                    <input type="text" placeholder="amount" id="amount" value={amount} onChange={(e) => setAmount(e.target.value)} /><br />
-                    <input type="text" placeholder="value" id="value" value={value} onChange={(e) => setValue(e.target.value)} /><br />
+                    <input type="text" placeholder="amount" id="amount" onChange={(e) => setAmount(e.target.value)} /><br />
+                    <input type="text" placeholder="value" id="value" onChange={(e) => setValue(e.target.value)} /><br />
                     <a className="button style" onClick={() => write?.() } style={{ cursor: 'pointer' }}>swap</a>
                 </div>
             }

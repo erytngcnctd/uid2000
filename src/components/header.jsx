@@ -142,43 +142,39 @@ export class Header extends Component {
                     }
                 </div>
                 {this.context.selected == undefined ?
-                undefined :
-                <div style={{ paddingTop: '35px' }}>
-                    <span>
-                        <a className='style' onClick={() => this.context.setSelected('feed')} href='#/feed'> {/* filters ? */}
-                            feed
-                        </a>&nbsp;&nbsp;
-                        <a className='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
-                            publish
-                        </a>&nbsp;&nbsp;
-                        {/*                         <a className='style' onClick={() => this.context.setSelected('analytics')} href='#/analytics'>
+                    undefined :
+                    <div style={{ paddingTop: '35px' }}>
+                        <span>
+                            <a className='style' onClick={() => this.context.setSelected('feed')} href='#/feed'> {/* filters ? */}
+                                feed
+                            </a>&nbsp;&nbsp;
+                            <a className='style' onClick={() => this.context.setSelected('publish')} href='#/publish'>
+                                publish
+                            </a>&nbsp;&nbsp;
+                            <a className='style' onClick={() => this.context.setSelected('finance')} href='#/finance'>
+                                finance
+                            </a>&nbsp;&nbsp;
+                            {/*                         <a className='style' onClick={() => this.context.setSelected('analytics')} href='#/analytics'>
                             analytics
                         </a>&nbsp;&nbsp; 
 */}
-                        {this.context.account ?
-                            <span>
-                                <a className='style' onClick={() => this.context.setSelected('defi')} href='#/defi'>
-                                    DeFi
-                                </a>&nbsp;&nbsp;
-                                <a className='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
-                                    assets
-                                </a>&nbsp;&nbsp;
-                                <a className='style' onClick={() => this.context.setSelected('config')} href='#/uuid'>
-                                    uuid
-                                </a>&nbsp;&nbsp;
-                            </span>
-                            : undefined
-                        }
-                        <a className='style' onClick={() => this.context.setSelected('about')} href='#/about'>
-                            about
-                        </a>
-                        <span style={{ float: 'right' }}>
-                            {/*                             network:
+                            <a className='style' onClick={() => this.context.setSelected('assets')} href={`#/${this.context.account}`}>
+                                assets
+                            </a>&nbsp;&nbsp;
+                            <a className='style' onClick={() => this.context.setSelected('config')} href='#/uuid'>
+                                uuid
+                            </a>&nbsp;&nbsp;
+
+                            <a className='style' onClick={() => this.context.setSelected('about')} href='#/about'>
+                                about
+                            </a>
+                            <span style={{ float: 'right' }}>
+                                {/*                             network:
                             <select style={{ border: 'none', fontFamily: 'monospace' }}>
                                 <option value='0'>polygon</option>
                             </select> 
                             */}
-                            {/*
+                                {/*
                             <option value='1'>fantom</option>
                             <option value='2'>avax</option>
                             <option value='3'>aurora</option>
@@ -187,8 +183,8 @@ export class Header extends Component {
                             <option value='6'>bnb</option>
                             <option value='7'>xDAI</option>
                             */}
-                        </span>
-                        {/*                         {
+                            </span>
+                            {/*                         {
                             this.context.selected == 'mint' ?
                                 <div>
                                     <a className='style' style={{ cursor: 'pointer' }} onClick={() => this.context.setOpen(true)}>
@@ -199,14 +195,14 @@ export class Header extends Component {
                                     </a>
                                 </div> : undefined
                         } */}
-                        {/*<a href='#' onClick={() => this.addToken()} >
+                            {/*<a href='#' onClick={() => this.addToken()} >
                             add token //
                         </a>
                         <a href='#'>無為</a>
                         <a href='collections'></a> */}
-                    </span>
-                </div>
-    }
+                        </span>
+                    </div>
+                }
             </div>
         )
     }

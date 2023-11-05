@@ -14,7 +14,7 @@ import { Tags } from './components/tags'
 import { Landing } from './components/landing'
 import { Config } from './components/config'
 import { Swap } from './components/swap'
-import { Defi } from './components/defi'
+import { Finance } from './components/finance'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import { configureChains,createConfig, WagmiConfig } from 'wagmi'
@@ -53,7 +53,7 @@ function App() {
               <Route exact path='/uuid' element={ <Config /> } />
               <Route exact path='/:id' element={ <Assets/> } />
               <Route exact path='/search/:id' element={ <Search/> } />
-              <Route exact path='/defi' element={ <Defi /> } />
+              <Route exact path='/finance' element={ <Finance /> } />
             </Routes>
           </HashRouter>
         </UngrundContextProvider>
