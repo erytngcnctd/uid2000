@@ -320,6 +320,19 @@ export class Assets extends Component {
                                                             //     </div>
                                                             //     : undefined
                                                         }
+                                                        {
+                                                            e.tokenMetaData.mimeType?.split('/')[0] == 'model' ?
+                                                                <div>
+                                                                    <a href={`#/asset/${toHex(e.tokenId || e.id)}`}>
+                                                                        <model-viewer 
+                                                                                    src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`}
+                                                                                    camera-controls={true}
+                                                                                    style={{ maxWidth: '50vw' }}
+                                                                        />
+                                                                    </a>
+                                                                </div>
+                                                                : undefined
+                                                        }
                                                     </div>
                                                 )
                                             }

@@ -10,6 +10,7 @@ import {
     useWaitForTransaction,
     usePrepareContractWrite, 
 } from 'wagmi'
+import { getMimeType } from '../utils/utils'
 // import { isError } from 'lodash'
 //let ls = require('local-storage')
 
@@ -83,8 +84,8 @@ const encrypt = async () => {
         .then(res => res)
 
     console.log(await decrypted)
-    //console.log(Buffer.from((await new File([(await decrypted)], this.state.file.name, {type: this.state.file.type, lastModified: Date.now()}).arrayBuffer())))
-    //this.ipfsUpload(new File([(await decrypted)], this.state.file.name, { type: this.state.file.type, lastModified: Date.now() }))
+    //console.log(Buffer.from((await new File([(await decrypted)], this.state.file.name, {type: this.state.mimeType, lastModified: Date.now()}).arrayBuffer())))
+    //this.ipfsUpload(new File([(await decrypted)], this.state.file.name, { type: this.state.mimeType, lastModified: Date.now() }))
     //Uint8Array
 
 }
@@ -100,6 +101,8 @@ export const Mint = () => {
     const [file, setFile] = useState(null)
     const [display, setDisplay] = useState(null)
     const [video, setVideo] = useState(null)
+    const [model, setModel] = useState(null)
+    const [mimeType, setMimeType] = useState(null)
     const [preview, setPreview] = useState(null) 
     const { erc1155, minterAbi, loading, setLoading, setMsg } = useContext(UngrundContext)
     const [uri, setUri] = useState('ipfs://')
@@ -131,9 +134,14 @@ export const Mint = () => {
     }, [uri])
 
     const onFileUpload = async e => {
-        if (e.target.files[0].type.split('/')[0] === 'video') setVideo(true)
-           setFile(e.target.files[0])
-        }
+        let type = e.target.files[0].type
+        if (!type) type = await getMimeType(e.target.files[0]) 
+        if (type.split('/')[0] === 'video') setVideo(true)
+        if (type.split('/')[0] === 'model') setModel(true)
+        setMimeType(type)
+        setFile(e.target.files[0])
+    }
+    
     
     const onDisplayUpload = e => setDisplay(e.target.files[0])
 
@@ -152,43 +160,41 @@ export const Mint = () => {
         artifactBuffer.comment = description
         
         let obj = {}
-
-        if (video) {
-
+        if (video || model) {
+           
             let displayBuffer = Buffer.from(await display.arrayBuffer())
-            let display = await client.storeBlob(new Blob([displayBuffer]))
-
+            let image = `ipfs://${await client.storeBlob(new Blob([displayBuffer]))}`
             obj = {
                 name: title ? title : undefined,
                 description: description ? description : undefined,
                 animation_url: `ipfs://${artifact}`,
-                image: `ipfs://${display}`
+                image
             }
         } else {
 
             obj = {
                 name: title ? title : undefined,
                 description: description ? description : undefined,
-                image: `ipfs://${artifact}`
+                image
             }
 
         }
 
         // if (hashtags?.length > 0) obj.attributes = hashtags.map(e => { return { 'value': e } })
-        if (file.type != undefined) {
-            obj.mimeType = file.type
+        if (mimeType != undefined) {
+            obj.mimeType = mimeType
         }
 
         let str = JSON.stringify(obj)
-
         let cid = await client.storeBlob(new Blob([str], {
             type: "application/json"
         }))
 
         setUri(uri => uri+cid)
-        console.log('metadata', obj, 'nft', cid)
+        console.log('metadata', str, 'nft', cid)
 
     }
+
 
     return (
 
@@ -206,7 +212,7 @@ export const Mint = () => {
                                 <br/>
                                 <input type="file" name="file" onChange={onFileUpload} />
                                 {
-                                    video &&
+                                    (video || model)  &&
                                         <div>
                                             <input type="file" name="display" onChange={onDisplayUpload} />
                                         </div>
@@ -225,23 +231,23 @@ export const Mint = () => {
             
         { preview && 
             <div><br/>
-                { file.type.split('/')[0] === 'image' ? 
+                { mimeType.split('/')[0] === 'image' ? 
                     <div> 
                         <img variant="top" src={URL.createObjectURL(file)} />
                     </div>
-                : file.type.split('/')[0] === 'text' ?
+                : mimeType.split('/')[0] === 'text' ?
                     <div className='txt' style={{ maxWidth: '50vw' }}>
                         <ReactMarkdown>
                             {text}
                         </ReactMarkdown>
                     </div>
-                : file.type.split('/')[0] === 'video' ?
+                : mimeType.split('/')[0] === 'video' ?
                     <div>
                         <video autoPlay={"autoplay"} loop muted style={{ maxWidth: '50vw' }}>
                             <source src={URL.createObjectURL(file)}></source>
                         </video>
                     </div>
-                : file.type.split('/')[0] === 'application/pdf' ?
+                : mimeType.split('/')[0] === 'application/pdf' ?
                     <div>
                         <Document
                             file = {URL.createObjectURL(file)}
@@ -249,7 +255,7 @@ export const Mint = () => {
                             <Page pageNumber={1} />
                         </Document>
                     </div>
-                : file.type.split('/')[0] === 'audio' ?
+                : mimeType.split('/')[0] === 'audio' ?
                     <div>
                         <img src={URL.createObjectURL(display)} /><br />
 
@@ -257,8 +263,17 @@ export const Mint = () => {
                             <source src={URL.createObjectURL(file)} />
                         </audio>
                     </div>
-                    : undefined
+                :  mimeType.split('/')[0] === 'model' ?
+                <div>
+                    <model-viewer  
+                        src={URL.createObjectURL(file)}
+                        camera-controls={true}
+                        style={{ maxWidth: '50vw' }}
+                     />     
+                </div>
+                : undefined
                 }
+
                 <br/>
                 <div>{title}</div>
                 <div>{description}</div>

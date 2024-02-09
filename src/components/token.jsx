@@ -159,7 +159,7 @@ export class Token extends Component {
         // console.log(history)
         
         Promise.all(aux).then(async values => {
-            console.log('metadata', values)
+            // console.log('metadata', values)
             this.context.token = values
             this.setState({ token: values, listings: listings.reverse(), orders: _.orderBy(orders, ['value'], ['asc']), history: history, loading: false })
         })
@@ -264,6 +264,17 @@ export class Token extends Component {
                                         : undefined
                                 }
                                 {
+                                this.state.token[0].tokenMetaData.mimeType?.split('/')[0] == 'model' ?
+                                    <div>
+                                        <model-viewer 
+                                                    src = {`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`}
+                                                    camera-controls={true}
+                                                    style={{ maxWidth: '50vw' }}
+                                        />
+                                    </div>
+                                    : undefined
+                                }
+                                {
                                     // this.state.token[0].tokenMetaData.mimeType?.split('/')[1] == 'pdf' ?
                                     //     <iframe
                                     //         title="ungrund PDF renderer"
@@ -352,7 +363,7 @@ export class Token extends Component {
                                                     return (
                                                         <tr key={i}>
                                                             <td>{e.amount} ed.</td>
-                                                            <td><a className='style' href={`#/${e.issuer}`}>{e.issuer.slice(0, 7)}...{e.issuer.slice(36, 42)}</a></td>
+                                                            <td><a className='style' href={`#/${e.address}`}>{e.address.slice(0, 7)}...{e.address.slice(36, 42)}</a></td>
                                                             {/* <td><a className='button style' style={{ cursor: 'pointer' }} onClick={() => this.collect(e.swapId, e.value)}>collect for {e.value / 1000000000000000000} MATIC</a></td> */}
                                                             <td><Collect swapId={e.swapId} value={e.value / 1000000000000000000 }/></td>
                                                             {
@@ -370,7 +381,7 @@ export class Token extends Component {
                                                     return (
                                                         <tr key={i}>
                                                             <td>{e.amount} ed.</td>
-                                                            <td><a className='style' href={`#/${e.issuer}`}>{e.address.slice(0, 7)}...{e.address.slice(36, 42)}</a></td>
+                                                            <td><a className='style' href={`#/${e.address}`}>{e.address.slice(0, 7)}...{e.address.slice(36, 42)}</a></td>
                                                         </tr>
                                                     )
                                                 })}

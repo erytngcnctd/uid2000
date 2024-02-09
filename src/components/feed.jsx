@@ -87,14 +87,14 @@ class Feed extends Component {
 
     next = async () => {
         this.setState({ loading: true })
-        this.setState({ arr: await metadata(this.state.offset + 21), loading: false })
-        this.setState({ offset: this.state.offset + 21 })
+        this.setState({ arr: await metadata(this.state.offset + 8), loading: false })
+        this.setState({ offset: this.state.offset + 8 })
     }
 
     previous = async () => {
         this.setState({ loading: true })
-        this.setState({ arr: await metadata(this.state.offset - 21), loading: false })
-        this.setState({ offset: this.state.offset - 21 })
+        this.setState({ arr: await metadata(this.state.offset - 8), loading: false })
+        this.setState({ offset: this.state.offset - 8 })
     }
 
     async componentDidMount() {
@@ -236,6 +236,17 @@ class Feed extends Component {
                                                         <audio controls style={{ width: '100%' }}>
                                                             <source src={`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`} />
                                                         </audio>
+                                                    </a>
+                                                </div> : undefined
+                                            }
+                                            {e.tokenMetaData.mimeType?.split('/')[0] == 'model' ?
+                                                <div>
+                                                    <a href={`#/asset/${toHex(e.id)}`}>
+                                                    <model-viewer 
+                                                        src = {`https://cloudflare-ipfs.com/ipfs/${e.tokenMetaData.animation_url.split('//')[1]}`}
+                                                        camera-controls={true}
+                                                        style={{ maxWidth: '50vw' }}
+                                                    />
                                                     </a>
                                                 </div> : undefined
                                             }
